@@ -1,0 +1,58 @@
+{
+	"name": "n8n-nodes-proposaly",
+	"version": "0.1.0",
+	"description": "n8n nodes for Proposaly",
+	"license": "MIT",
+	"homepage": "https://github.com/ADCORE-INC/n8n.proposaly.io",
+	"bugs": {
+		"url": "https://github.com/ADCORE-INC/n8n.proposaly.io/issues"
+	},
+	"keywords": [
+		"n8n-community-node-package",
+		"n8n-nodes",
+		"n8n",
+		"proposaly-node",
+		"proposaly-nodes"
+	],
+	"author": {
+		"name": "Proposaly Team",
+		"email": "support@proposaly.io"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ADCORE-INC/n8n.proposaly.io.git"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"build:watch": "tsc --watch",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"release": "n8n-node release",
+		"prepublishOnly": "n8n-node prerelease"
+	},
+	"files": [
+		"dist"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": true,
+		"credentials": [
+			"dist/credentials/ProposalyApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/Proposaly/Proposaly.node.js",
+			"dist/nodes/Proposaly/ProposalyTrigger.node.js"
+		]
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "*",
+		"eslint": "9.32.0",
+		"prettier": "3.6.2",
+		"release-it": "^19.0.4",
+		"typescript": "5.9.2"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}

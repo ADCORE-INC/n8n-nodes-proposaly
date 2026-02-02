@@ -1,0 +1,20 @@
+{
+	"node": "n8n-nodes-base.Proposaly",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": [
+		"Data Transformation"
+	],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://api.proposaly.io/redoc"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://github.com/ADCORE-INC/n8n.proposaly.io"
+			}
+		]
+	}
+}
