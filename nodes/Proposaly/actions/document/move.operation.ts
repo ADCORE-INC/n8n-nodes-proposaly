@@ -1,6 +1,7 @@
 import { IDataObject, IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { StageID } from '../../types';
 import { proposalyRequest } from '../../transport';
+import { Fields } from '../../constants';
 
 type Response = {
 	document_id: string;
@@ -16,11 +17,11 @@ export async function moveDocumentStageOperation(
 	items: INodeExecutionData[],
 	itemIndex: number,
 ): Promise<INodeExecutionData> {
-	const documentId = context.getNodeParameter('documentId', itemIndex) as string;
-	const newStage = context.getNodeParameter('newStage', itemIndex) as string;
+	const documentId = context.getNodeParameter(Fields.DocumentId, itemIndex) as string;
+	const newStage = context.getNodeParameter(Fields.NewStage, itemIndex) as string;
 	const reasonArchived =
 		newStage === StageID.ARCHIVED
-			? (context.getNodeParameter('reasonArchived', itemIndex) as string)
+			? (context.getNodeParameter(Fields.ReasonArchived, itemIndex) as string)
 			: '';
 
 	const body: IDataObject = {

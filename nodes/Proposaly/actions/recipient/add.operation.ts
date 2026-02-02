@@ -1,17 +1,18 @@
 import { IDataObject, INodeExecutionData, IExecuteFunctions } from 'n8n-workflow';
 import { proposalyRequest } from '../../transport';
+import { Fields } from '../../constants';
 
 export async function addRecipientOperation(
 	context: IExecuteFunctions,
 	items: INodeExecutionData[],
 	itemIndex: number,
 ): Promise<INodeExecutionData> {
-	const documentId = context.getNodeParameter('documentId', itemIndex) as string;
-	const firstName = context.getNodeParameter('firstName', itemIndex) as string;
-	const lastName = context.getNodeParameter('lastName', itemIndex) as string;
-	const email = context.getNodeParameter('email', itemIndex) as string;
-	const phoneNumber = context.getNodeParameter('phoneNumber', itemIndex, '') as string;
-	const accessLevel = context.getNodeParameter('accessLevel', itemIndex) as string;
+	const documentId = context.getNodeParameter(Fields.DocumentId, itemIndex) as string;
+	const firstName = context.getNodeParameter(Fields.FirstName, itemIndex) as string;
+	const lastName = context.getNodeParameter(Fields.LastName, itemIndex) as string;
+	const email = context.getNodeParameter(Fields.Email, itemIndex) as string;
+	const phoneNumber = context.getNodeParameter(Fields.PhoneNumber, itemIndex, '') as string;
+	const accessLevel = context.getNodeParameter(Fields.AccessLevel, itemIndex) as string;
 
 	const body: IDataObject = {
 		document_id: documentId,

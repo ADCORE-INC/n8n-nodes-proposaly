@@ -2,13 +2,14 @@ import { IDataObject, INodeExecutionData, IExecuteFunctions, NodeOperationError 
 
 import { Recipient } from '../../types';
 import { proposalyRequest } from '../../transport';
+import { Fields } from '../../constants';
 
 export async function findRecipientOperation(
 	context: IExecuteFunctions,
 	items: INodeExecutionData[],
 	itemIndex: number,
 ): Promise<INodeExecutionData> {
-	const recipientId = context.getNodeParameter('recipientIdString', itemIndex) as string;
+	const recipientId = context.getNodeParameter(Fields.RecipientIdString, itemIndex) as string;
 
 	if (!recipientId) {
 		throw new NodeOperationError(

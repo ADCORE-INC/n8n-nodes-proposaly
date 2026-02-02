@@ -1,23 +1,24 @@
 import { IDataObject, INodeExecutionData, IExecuteFunctions } from 'n8n-workflow';
 import { compact } from '../../utils';
 import { proposalyRequest } from '../../transport';
+import { Fields } from '../../constants';
 
 export async function updateLeadOperation(
 	context: IExecuteFunctions,
 	items: INodeExecutionData[],
 	itemIndex: number,
 ): Promise<INodeExecutionData> {
-	const leadId = context.getNodeParameter('leadId', itemIndex) as string;
-	const leadTypeOptional = context.getNodeParameter('leadTypeOptional', itemIndex) as string;
-	const clientNameOptional = context.getNodeParameter('clientNameOptional', itemIndex) as string;
-	const countryOptional = context.getNodeParameter('countryOptional', itemIndex) as string;
-	const leadSourceOptional = context.getNodeParameter('leadSourceOptional', itemIndex) as string;
+	const leadId = context.getNodeParameter(Fields.LeadId, itemIndex) as string;
+	const leadTypeOptional = context.getNodeParameter(Fields.LeadTypeOptional, itemIndex) as string;
+	const clientNameOptional = context.getNodeParameter(Fields.ClientNameOptional, itemIndex) as string;
+	const countryOptional = context.getNodeParameter(Fields.CountryOptional, itemIndex) as string;
+	const leadSourceOptional = context.getNodeParameter(Fields.LeadSourceOptional, itemIndex) as string;
 	const leadSourceOther =
 		leadSourceOptional === 'Other'
-			? (context.getNodeParameter('leadSourceOther', itemIndex) as string)
+			? (context.getNodeParameter(Fields.LeadSourceOther, itemIndex) as string)
 			: '';
-	const ownerEmailOptional = context.getNodeParameter('ownerEmailOptional', itemIndex) as string;
-	const additionalFields = context.getNodeParameter('additionalFields', itemIndex) as IDataObject;
+	const ownerEmailOptional = context.getNodeParameter(Fields.OwnerEmailOptional, itemIndex) as string;
+	const additionalFields = context.getNodeParameter(Fields.AdditionalFields, itemIndex) as IDataObject;
 
 	const data: IDataObject = compact({
 		lead_type: leadTypeOptional,

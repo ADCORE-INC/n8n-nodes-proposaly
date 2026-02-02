@@ -37,6 +37,14 @@ import { updateRecipientNotificationOperation } from './actions/recipient/update
 import { updateRecipientOperation } from './actions/recipient/update.operation';
 import { addWorkspaceOperation } from './actions/workspace/add.operation';
 import { findWorkspaceOperation } from './actions/workspace/find.operation';
+import {
+	Fields,
+	Resources,
+	LeadOperations,
+	DocumentOperations,
+	RecipientOperations,
+	WorkspaceOperations,
+} from './constants';
 import { Document, Lead, Recipient, Workspace } from './types';
 
 import { documentFields, documentOperations } from './descriptions/DocumentDescription';
@@ -89,29 +97,30 @@ export class Proposaly implements INodeType {
 			},
 		],
 		properties: [
+			// eslint-disable-next-line n8n-nodes-base/node-param-default-missing
 			{
 				displayName: 'Resource',
-				name: 'resource',
+				name: Fields.Resource,
 				type: 'options',
 				options: [
 					{
 						name: 'Lead',
-						value: 'lead',
+						value: Resources.Lead,
 					},
 					{
 						name: 'Recipient',
-						value: 'recipient',
+						value: Resources.Recipient,
 					},
 					{
 						name: 'Document',
-						value: 'document',
+						value: Resources.Document,
 					},
 					{
 						name: 'Workspace',
-						value: 'workspace',
+						value: Resources.Workspace,
 					},
 				],
-				default: 'lead',
+				default: Resources.Lead,
 				noDataExpression: true,
 				required: true,
 			},
@@ -143,7 +152,7 @@ export class Proposaly implements INodeType {
 				}));
 			},
 			async getDocumentTemplates(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
-				const workspaceId = this.getNodeParameter('workspaceId', 0) as string;
+				const workspaceId = this.getNodeParameter(Fields.WorkspaceId, 0) as string;
 
 				if (!workspaceId) {
 					throw new NodeOperationError(
@@ -163,7 +172,7 @@ export class Proposaly implements INodeType {
 				}));
 			},
 			async getDocuments(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
-				const workspaceId = this.getNodeParameter('workspaceId', 0) as string;
+				const workspaceId = this.getNodeParameter(Fields.WorkspaceId, 0) as string;
 
 				if (!workspaceId) {
 					throw new NodeOperationError(
@@ -182,7 +191,7 @@ export class Proposaly implements INodeType {
 				}));
 			},
 			async getArchivedLeads(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
-				const workspaceId = this.getNodeParameter('workspaceId', 0) as string;
+				const workspaceId = this.getNodeParameter(Fields.WorkspaceId, 0) as string;
 
 				if (!workspaceId) {
 					throw new NodeOperationError(
@@ -202,7 +211,7 @@ export class Proposaly implements INodeType {
 				}));
 			},
 			async getRecipients(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
-				const documentId = this.getNodeParameter('documentId', 0) as string;
+				const documentId = this.getNodeParameter(Fields.DocumentId, 0) as string;
 
 				if (!documentId) {
 					throw new NodeOperationError(
@@ -231,42 +240,42 @@ export class Proposaly implements INodeType {
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][] | null> {
 		const items = this.getInputData();
-		const resource = this.getNodeParameter('resource', 0) as string;
-		const operation = this.getNodeParameter('operation', 0) as string;
+		const resource = this.getNodeParameter(Fields.Resource, 0) as string;
+		const operation = this.getNodeParameter(Fields.Operation, 0) as string;
 
 		// LEAD ACTIONS
-		if (resource === 'lead') {
-			if (operation === 'createLead') {
+		if (resource === Resources.Lead) {
+			if (operation === LeadOperations.Create) {
 				return executeItems(this, (i) => addLeadOperation(this, items, i));
 			}
 
-			if (operation === 'archiveLead') {
+			if (operation === LeadOperations.Archive) {
 				return executeItems(this, (i) => archiveLeadOperation(this, items, i));
 			}
 
-			if (operation === 'deleteLead') {
+			if (operation === LeadOperations.Delete) {
 				return executeItems(this, (i) => deleteLeadOperation(this, items, i));
 			}
 
-			if (operation === 'updateLead') {
+			if (operation === LeadOperations.Update) {
 				return executeItems(this, (i) => updateLeadOperation(this, items, i));
 			}
 
-			if (operation === 'reactivateLead') {
+			if (operation === LeadOperations.Reactivate) {
 				return executeItems(this, (i) => reactivateLeadOperation(this, items, i));
 			}
 
-			if (operation === 'findLeadById') {
+			if (operation === LeadOperations.FindById) {
 				return executeItems(this, (i) => findLeadByIdOperation(this, items, i));
 			}
 		}
 
 		// DOCUMENT ACTIONS
-		if (resource === 'document') {
-			if (operation === 'createDocument') {
+		if (resource === Resources.Document) {
+			if (operation === DocumentOperations.Create) {
 				return executeItems(this, (i) => {
-					const workspaceId = this.getNodeParameter('workspaceId', i) as string;
-					const title = this.getNodeParameter('documentTitle', i) as string;
+					const workspaceId = this.getNodeParameter(Fields.WorkspaceId, i) as string;
+					const title = this.getNodeParameter(Fields.DocumentTitle, i) as string;
 					return createDocumentOperation(this, items, i, {
 						workspaceId,
 						title,
@@ -274,11 +283,11 @@ export class Proposaly implements INodeType {
 				});
 			}
 
-			if (operation === 'createDocumentFromLead') {
+			if (operation === DocumentOperations.CreateFromLead) {
 				return executeItems(this, (i) => {
-					const workspaceId = this.getNodeParameter('workspaceId', i) as string;
-					const title = this.getNodeParameter('documentTitle', i) as string;
-					const leadId = this.getNodeParameter('leadId', i) as string;
+					const workspaceId = this.getNodeParameter(Fields.WorkspaceId, i) as string;
+					const title = this.getNodeParameter(Fields.DocumentTitle, i) as string;
+					const leadId = this.getNodeParameter(Fields.LeadId, i) as string;
 					return createDocumentOperation(this, items, i, {
 						workspaceId,
 						title,
@@ -287,15 +296,15 @@ export class Proposaly implements INodeType {
 				});
 			}
 
-			if (operation === 'createDocumentFromTemplate') {
+			if (operation === DocumentOperations.CreateFromTemplate) {
 				return executeItems(this, (i) => {
-					const workspaceId = this.getNodeParameter('workspaceId', i) as string;
-					const title = this.getNodeParameter('documentTitle', i) as string;
-					const templateDocumentId = this.getNodeParameter('documentTemplateId', i) as string;
-					const copyRecipients = this.getNodeParameter('copyRecipients', i, false) as boolean;
-					const copyPriceQuote = this.getNodeParameter('copyPriceQuote', i, false) as boolean;
-					const copyAddons = this.getNodeParameter('copyAddons', i, false) as boolean;
-					const copyAttachments = this.getNodeParameter('copyAttachments', i, false) as boolean;
+					const workspaceId = this.getNodeParameter(Fields.WorkspaceId, i) as string;
+					const title = this.getNodeParameter(Fields.DocumentTitle, i) as string;
+					const templateDocumentId = this.getNodeParameter(Fields.DocumentTemplateId, i) as string;
+					const copyRecipients = this.getNodeParameter(Fields.CopyRecipients, i, false) as boolean;
+					const copyPriceQuote = this.getNodeParameter(Fields.CopyPriceQuote, i, false) as boolean;
+					const copyAddons = this.getNodeParameter(Fields.CopyAddons, i, false) as boolean;
+					const copyAttachments = this.getNodeParameter(Fields.CopyAttachments, i, false) as boolean;
 					return createDocumentOperation(this, items, i, {
 						workspaceId,
 						title,
@@ -308,77 +317,77 @@ export class Proposaly implements INodeType {
 				});
 			}
 
-			if (operation === 'createDocumentViewOnlyLink') {
+			if (operation === DocumentOperations.CreateViewOnlyLink) {
 				return executeItems(this, (i) => {
-					const documentId = this.getNodeParameter('documentId', i) as string;
-					const expiresAfter = this.getNodeParameter('expiresAfter', i) as string;
+					const documentId = this.getNodeParameter(Fields.DocumentId, i) as string;
+					const expiresAfter = this.getNodeParameter(Fields.ExpiresAfter, i) as string;
 					return createDocumentShareLinkOperation(this, items, i, documentId, expiresAfter);
 				});
 			}
 
-			if (operation === 'deleteDocument') {
+			if (operation === DocumentOperations.Delete) {
 				return executeItems(this, (i) => deleteDocumentOperation(this, items, i));
 			}
 
-			if (operation === 'duplicateDocument') {
+			if (operation === DocumentOperations.Duplicate) {
 				return executeItems(this, (i) => duplicateDocumentOperation(this, items, i));
 			}
 
-			if (operation === 'moveDocumentStage') {
+			if (operation === DocumentOperations.MoveStage) {
 				return executeItems(this, (i) => moveDocumentStageOperation(this, items, i));
 			}
 
-			if (operation === 'shareDocument') {
+			if (operation === DocumentOperations.Share) {
 				return executeItems(this, (i) => shareDocumentOperation(this, items, i));
 			}
 
-			if (operation === 'transferDocumentOwnership') {
+			if (operation === DocumentOperations.TransferOwnership) {
 				return executeItems(this, (i) => transferDocumentOwnershipOperation(this, items, i));
 			}
 
-			if (operation === 'updateDocument') {
+			if (operation === DocumentOperations.Update) {
 				return executeItems(this, (i) => updateDocumentOperation(this, items, i));
 			}
 
-			if (operation === 'findDocumentById') {
+			if (operation === DocumentOperations.FindById) {
 				return executeItems(this, (i) => findDocumentOperation(this, items, i));
 			}
 		}
 
 		// RECIPIENT ACTIONS
-		if (resource === 'recipient') {
-			if (operation === 'addRecipient') {
+		if (resource === Resources.Recipient) {
+			if (operation === RecipientOperations.Add) {
 				return executeItems(this, (i) => addRecipientOperation(this, items, i));
 			}
 
-			if (operation === 'updateRecipient') {
+			if (operation === RecipientOperations.Update) {
 				return executeItems(this, (i) => updateRecipientOperation(this, items, i));
 			}
 
-			if (operation === 'deleteRecipient') {
+			if (operation === RecipientOperations.Delete) {
 				return executeItems(this, (i) => deleteRecipientOperation(this, items, i));
 			}
 
-			if (operation === 'findRecipient') {
+			if (operation === RecipientOperations.Find) {
 				return executeItems(this, (i) => findRecipientOperation(this, items, i));
 			}
 
-			if (operation === 'updateRecipientNotificationSettings') {
+			if (operation === RecipientOperations.UpdateNotificationSettings) {
 				return executeItems(this, (i) => updateRecipientNotificationOperation(this, items, i));
 			}
 
-			if (operation === 'getRecipientNotificationSettings') {
+			if (operation === RecipientOperations.GetNotificationSettings) {
 				return executeItems(this, (i) => getRecipientNotificationSettingsOperation(this, items, i));
 			}
 		}
 
 		// WORKSPACE ACTIONS
-		if (resource === 'workspace') {
-			if (operation === 'addWorkspace') {
+		if (resource === Resources.Workspace) {
+			if (operation === WorkspaceOperations.Add) {
 				return executeItems(this, (i) => addWorkspaceOperation(this, items, i));
 			}
 
-			if (operation === 'findWorkspaceById') {
+			if (operation === WorkspaceOperations.FindById) {
 				return executeItems(this, (i) => findWorkspaceOperation(this, items, i));
 			}
 		}

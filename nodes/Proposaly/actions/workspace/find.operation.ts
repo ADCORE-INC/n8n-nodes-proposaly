@@ -2,13 +2,14 @@ import { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow
 
 import { Workspace } from '../../types';
 import { proposalyRequest } from '../../transport';
+import { Fields } from '../../constants';
 
 export async function findWorkspaceOperation(
 	context: IExecuteFunctions,
 	items: INodeExecutionData[],
 	itemIndex: number,
 ): Promise<INodeExecutionData> {
-	const workspaceId = context.getNodeParameter('workspaceIdString', itemIndex) as string;
+	const workspaceId = context.getNodeParameter(Fields.WorkspaceIdString, itemIndex) as string;
 
 	const responseData: Workspace[] = await proposalyRequest(context, {
 		method: 'GET',

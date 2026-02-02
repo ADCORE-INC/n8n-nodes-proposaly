@@ -1,19 +1,20 @@
 import { IDataObject, INodeExecutionData, IExecuteFunctions } from 'n8n-workflow';
 import { proposalyRequest } from '../../transport';
+import { Fields } from '../../constants';
 
 export async function updateRecipientOperation(
 	context: IExecuteFunctions,
 	items: INodeExecutionData[],
 	itemIndex: number,
 ): Promise<INodeExecutionData> {
-	const workspaceId = context.getNodeParameter('workspaceId', itemIndex) as string;
-	const recipientId = context.getNodeParameter('recipientId', itemIndex) as string;
-	const firstName = context.getNodeParameter('firstNameOptional', itemIndex, '') as string;
-	const lastName = context.getNodeParameter('lastNameOptional', itemIndex, '') as string;
-	const email = context.getNodeParameter('emailOptional', itemIndex, '') as string;
-	const phoneNumber = context.getNodeParameter('phoneNumberOptional', itemIndex, '') as string;
-	const accessLevel = context.getNodeParameter('accessLevelOptional', itemIndex, '') as string;
-	const status = context.getNodeParameter('statusOptional', itemIndex, '') as string;
+	const workspaceId = context.getNodeParameter(Fields.WorkspaceId, itemIndex) as string;
+	const recipientId = context.getNodeParameter(Fields.RecipientId, itemIndex) as string;
+	const firstName = context.getNodeParameter(Fields.FirstNameOptional, itemIndex, '') as string;
+	const lastName = context.getNodeParameter(Fields.LastNameOptional, itemIndex, '') as string;
+	const email = context.getNodeParameter(Fields.EmailOptional, itemIndex, '') as string;
+	const phoneNumber = context.getNodeParameter(Fields.PhoneNumberOptional, itemIndex, '') as string;
+	const accessLevel = context.getNodeParameter(Fields.AccessLevelOptional, itemIndex, '') as string;
+	const status = context.getNodeParameter(Fields.StatusOptional, itemIndex, '') as string;
 
 	const body: IDataObject = {
 		workspace_id: workspaceId,

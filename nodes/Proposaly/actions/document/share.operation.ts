@@ -1,5 +1,6 @@
 import { IDataObject, IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { proposalyRequest } from '../../transport';
+import { Fields } from '../../constants';
 
 type Response = {
 	message: string;
@@ -10,8 +11,8 @@ export async function shareDocumentOperation(
 	items: INodeExecutionData[],
 	itemIndex: number,
 ): Promise<INodeExecutionData> {
-	const documentId = context.getNodeParameter('documentId', itemIndex) as string;
-	const recipients = context.getNodeParameter('recipients', itemIndex) as string[];
+	const documentId = context.getNodeParameter(Fields.DocumentId, itemIndex) as string;
+	const recipients = context.getNodeParameter(Fields.Recipients, itemIndex) as string[];
 
 	const body: IDataObject = {
 		document_id: documentId,

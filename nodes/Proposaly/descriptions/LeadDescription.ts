@@ -1,54 +1,56 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { Fields, Resources, LeadOperations, AdditionalFieldKeys } from '../constants';
 
 export const leadOperations: INodeProperties[] = [
+	// eslint-disable-next-line n8n-nodes-base/node-param-default-missing
 	{
 		displayName: 'Operation',
-		name: 'operation',
+		name: Fields.Operation,
 		type: 'options',
 		displayOptions: {
 			show: {
-				resource: ['lead'],
+				resource: [Resources.Lead],
 			},
 		},
 		options: [
 			{
 				name: 'Archive Lead',
-				value: 'archiveLead',
+				value: LeadOperations.Archive,
 				description: 'Archive a lead in a workspace',
 				action: 'Archive a lead in a workspace',
 			},
 			{
 				name: 'Create Lead',
-				value: 'createLead',
+				value: LeadOperations.Create,
 				description: 'Create a new lead in a workspace',
 				action: 'Create a new lead in a workspace',
 			},
 			{
 				name: 'Delete Lead',
-				value: 'deleteLead',
+				value: LeadOperations.Delete,
 				description: 'Delete a lead in a workspace',
 				action: 'Delete a lead in a workspace',
 			},
 			{
 				name: 'Find Lead By ID',
-				value: 'findLeadById',
+				value: LeadOperations.FindById,
 				description: 'Find a lead in a workspace by ID',
 				action: 'Find a lead in a workspace by ID',
 			},
 			{
 				name: 'Reactivate Lead',
-				value: 'reactivateLead',
+				value: LeadOperations.Reactivate,
 				description: 'Reactivate an archived lead in a workspace',
 				action: 'Reactivate an archived lead in a workspace',
 			},
 			{
 				name: 'Update Lead',
-				value: 'updateLead',
+				value: LeadOperations.Update,
 				description: 'Update a lead in a workspace',
 				action: 'Update a lead in a workspace',
 			},
 		],
-		default: 'createLead',
+		default: LeadOperations.Create,
 		noDataExpression: true,
 	},
 ];
@@ -56,13 +58,13 @@ export const leadOperations: INodeProperties[] = [
 export const leadFields: INodeProperties[] = [
 	{
 		displayName: 'Lead ID To Find',
-		name: 'leadIdString',
+		name: Fields.LeadIdString,
 		type: 'string',
 		required: true,
 		displayOptions: {
 			show: {
-				resource: ['lead'],
-				operation: ['findLeadById'],
+				resource: [Resources.Lead],
+				operation: [LeadOperations.FindById],
 			},
 		},
 		default: '',
@@ -71,13 +73,13 @@ export const leadFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Lead ID',
-		name: 'leadId',
+		name: Fields.LeadId,
 		type: 'string',
 		required: true,
 		displayOptions: {
 			show: {
-				resource: ['lead'],
-				operation: ['archiveLead', 'deleteLead', 'updateLead'],
+				resource: [Resources.Lead],
+				operation: [LeadOperations.Archive, LeadOperations.Delete, LeadOperations.Update],
 			},
 		},
 		default: '',
@@ -86,7 +88,7 @@ export const leadFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Lead Type',
-		name: 'leadType',
+		name: Fields.LeadType,
 		required: true,
 		type: 'options',
 		options: [
@@ -101,8 +103,8 @@ export const leadFields: INodeProperties[] = [
 		],
 		displayOptions: {
 			show: {
-				resource: ['lead'],
-				operation: ['createLead'],
+				resource: [Resources.Lead],
+				operation: [LeadOperations.Create],
 			},
 		},
 		default: 'individual',
@@ -110,7 +112,7 @@ export const leadFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Lead Type',
-		name: 'leadTypeOptional',
+		name: Fields.LeadTypeOptional,
 		type: 'options',
 		options: [
 			{
@@ -128,8 +130,8 @@ export const leadFields: INodeProperties[] = [
 		],
 		displayOptions: {
 			show: {
-				resource: ['lead'],
-				operation: ['updateLead'],
+				resource: [Resources.Lead],
+				operation: [LeadOperations.Update],
 			},
 		},
 		default: '',
@@ -137,13 +139,13 @@ export const leadFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Website',
-		name: 'website',
+		name: Fields.Website,
 		type: 'string',
 		validateType: 'url',
 		displayOptions: {
 			show: {
-				resource: ['lead'],
-				operation: ['createLead', 'updateLead'],
+				resource: [Resources.Lead],
+				operation: [LeadOperations.Create, LeadOperations.Update],
 				leadType: ['business'],
 			},
 		},
@@ -152,13 +154,13 @@ export const leadFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Client Name',
-		name: 'clientName',
+		name: Fields.ClientName,
 		required: true,
 		type: 'string',
 		displayOptions: {
 			show: {
-				resource: ['lead'],
-				operation: ['createLead'],
+				resource: [Resources.Lead],
+				operation: [LeadOperations.Create],
 			},
 		},
 		default: '',
@@ -166,12 +168,12 @@ export const leadFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Client Name',
-		name: 'clientNameOptional',
+		name: Fields.ClientNameOptional,
 		type: 'string',
 		displayOptions: {
 			show: {
-				resource: ['lead'],
-				operation: ['updateLead'],
+				resource: [Resources.Lead],
+				operation: [LeadOperations.Update],
 			},
 		},
 		default: '',
@@ -179,13 +181,13 @@ export const leadFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Company Address - Country Code',
-		name: 'country',
+		name: Fields.Country,
 		required: true,
 		type: 'string',
 		displayOptions: {
 			show: {
-				resource: ['lead'],
-				operation: ['createLead'],
+				resource: [Resources.Lead],
+				operation: [LeadOperations.Create],
 			},
 		},
 		default: '',
@@ -193,12 +195,12 @@ export const leadFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Company Address - Country Code',
-		name: 'countryOptional',
+		name: Fields.CountryOptional,
 		type: 'string',
 		displayOptions: {
 			show: {
-				resource: ['lead'],
-				operation: ['updateLead'],
+				resource: [Resources.Lead],
+				operation: [LeadOperations.Update],
 			},
 		},
 		default: '',
@@ -206,11 +208,11 @@ export const leadFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Lead Source',
-		name: 'leadSource',
+		name: Fields.LeadSource,
 		displayOptions: {
 			show: {
-				resource: ['lead'],
-				operation: ['createLead'],
+				resource: [Resources.Lead],
+				operation: [LeadOperations.Create],
 			},
 		},
 		type: 'options',
@@ -328,11 +330,11 @@ export const leadFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Lead Source',
-		name: 'leadSourceOptional',
+		name: Fields.LeadSourceOptional,
 		displayOptions: {
 			show: {
-				resource: ['lead'],
-				operation: ['updateLead'],
+				resource: [Resources.Lead],
+				operation: [LeadOperations.Update],
 			},
 		},
 		type: 'options',
@@ -453,13 +455,13 @@ export const leadFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Lead Source: Other',
-		name: 'leadSourceOther',
+		name: Fields.LeadSourceOther,
 		type: 'string',
 		default: '',
 		required: true,
 		displayOptions: {
 			show: {
-				resource: ['lead'],
+				resource: [Resources.Lead],
 				leadSource: ['Other'],
 			},
 		},
@@ -467,13 +469,13 @@ export const leadFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Lead Source: Other',
-		name: 'leadSourceOther',
+		name: Fields.LeadSourceOther,
 		type: 'string',
 		default: '',
 		required: true,
 		displayOptions: {
 			show: {
-				resource: ['lead'],
+				resource: [Resources.Lead],
 				leadSourceOptional: ['Other'],
 			},
 		},
@@ -481,60 +483,60 @@ export const leadFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Owner Email',
-		name: 'ownerEmail',
+		name: Fields.OwnerEmail,
 		type: 'string',
 		default: '',
 		required: true,
 		description: 'Email address of the lead owner',
 		displayOptions: {
 			show: {
-				resource: ['lead'],
-				operation: ['createLead'],
+				resource: [Resources.Lead],
+				operation: [LeadOperations.Create],
 			},
 		},
 	},
 	{
 		displayName: 'Owner Email',
-		name: 'ownerEmailOptional',
+		name: Fields.OwnerEmailOptional,
 		type: 'string',
 		default: '',
 		description: 'Email address of the lead owner (optional)',
 		displayOptions: {
 			show: {
-				resource: ['lead'],
-				operation: ['updateLead'],
+				resource: [Resources.Lead],
+				operation: [LeadOperations.Update],
 			},
 		},
 	},
 	{
 		displayName: 'Additional Fields',
-		name: 'additionalFields',
+		name: Fields.AdditionalFields,
 		type: 'collection',
 		default: {},
 		displayOptions: {
 			show: {
-				resource: ['lead'],
-				operation: ['createLead', 'updateLead'],
+				resource: [Resources.Lead],
+				operation: [LeadOperations.Create, LeadOperations.Update],
 			},
 		},
 		options: [
 			{
 				displayName: 'Additional Comments',
-				name: 'comment',
+				name: AdditionalFieldKeys.Comment,
 				type: 'string',
 				default: '',
 				description: 'Additional comment for the lead',
 			},
 			{
 				displayName: 'Apartment',
-				name: 'apartment',
+				name: AdditionalFieldKeys.Apartment,
 				type: 'string',
 				default: '',
 				description: 'Apartment/suite number of the company (if applicable)',
 			},
 			{
 				displayName: 'City',
-				name: 'city',
+				name: AdditionalFieldKeys.City,
 				type: 'string',
 				default: '',
 				description: 'City where the company is located',
@@ -542,21 +544,21 @@ export const leadFields: INodeProperties[] = [
 
 			{
 				displayName: 'State',
-				name: 'state',
+				name: AdditionalFieldKeys.State,
 				type: 'string',
 				default: '',
 				description: 'State or province where the company is located',
 			},
 			{
 				displayName: 'Street Address',
-				name: 'streetAddress',
+				name: AdditionalFieldKeys.StreetAddress,
 				type: 'string',
 				default: '',
 				description: 'Street address of the company',
 			},
 			{
 				displayName: 'Zip Code',
-				name: 'zipCode',
+				name: AdditionalFieldKeys.ZipCode,
 				type: 'string',
 				default: '',
 				description: 'Postal or ZIP code',
@@ -565,15 +567,15 @@ export const leadFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Workspace Name or ID',
-		name: 'workspaceId',
+		name: Fields.WorkspaceId,
 		type: 'options',
 		typeOptions: {
 			loadOptionsMethod: 'getWorkspaces',
 		},
 		displayOptions: {
 			show: {
-				resource: ['lead'],
-				operation: ['createLead', 'reactivateLead'],
+				resource: [Resources.Lead],
+				operation: [LeadOperations.Create, LeadOperations.Reactivate],
 			},
 		},
 		default: '',
@@ -583,16 +585,16 @@ export const leadFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Archived Lead Name or ID',
-		name: 'archivedLeadId',
+		name: Fields.ArchivedLeadId,
 		type: 'options',
 		typeOptions: {
 			loadOptionsMethod: 'getArchivedLeads',
-			loadOptionsDependsOn: ['workspaceId'],
+			loadOptionsDependsOn: [Fields.WorkspaceId],
 		},
 		displayOptions: {
 			show: {
-				resource: ['lead'],
-				operation: ['reactivateLead'],
+				resource: [Resources.Lead],
+				operation: [LeadOperations.Reactivate],
 			},
 		},
 		default: '',

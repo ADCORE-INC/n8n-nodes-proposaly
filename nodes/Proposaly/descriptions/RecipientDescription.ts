@@ -1,55 +1,56 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { Fields, Resources, RecipientOperations } from '../constants';
 
 export const recipientOperations: INodeProperties[] = [
+	// eslint-disable-next-line n8n-nodes-base/node-param-default-missing
 	{
 		displayName: 'Operation',
-		name: 'operation',
+		name: Fields.Operation,
 		type: 'options',
 		displayOptions: {
 			show: {
-				resource: ['recipient'],
+				resource: [Resources.Recipient],
 			},
 		},
-		// eslint-disable-next-line
 		options: [
 			{
 				name: 'Add Recipient',
-				value: 'addRecipient',
+				value: RecipientOperations.Add,
 				description: 'Add a recipient to a document',
 				action: 'Add a recipient to a document',
 			},
 			{
 				name: 'Delete Recipient',
-				value: 'deleteRecipient',
+				value: RecipientOperations.Delete,
 				description: 'Delete a recipient from a document',
 				action: 'Delete a recipient from a document',
 			},
 			{
 				name: 'Find Recipient',
-				value: 'findRecipient',
+				value: RecipientOperations.Find,
 				description: 'Find a recipient by ID',
 				action: 'Find a recipient by ID',
 			},
 			{
 				name: 'Update Recipient',
-				value: 'updateRecipient',
+				value: RecipientOperations.Update,
 				description: 'Update a recipient in a document',
 				action: 'Update a recipient in a document',
 			},
 			{
 				name: 'Get Recipient Notification Settings',
-				value: 'getRecipientNotificationSettings',
+				value: RecipientOperations.GetNotificationSettings,
 				description: 'Retrieve notification preferences of a recipient',
 				action: 'Retrieve notification preferences of a recipient',
 			},
 			{
 				name: 'Update Recipient Notification Settings',
-				value: 'updateRecipientNotificationSettings',
+				value: RecipientOperations.UpdateNotificationSettings,
 				description: 'Update notification preferences of a recipient',
 				action: 'Update notification preferences of a recipient',
 			},
 		],
-		default: 'addRecipient',
+		default: RecipientOperations.Add,
 		noDataExpression: true,
 	},
 ];
@@ -57,23 +58,23 @@ export const recipientOperations: INodeProperties[] = [
 export const recipientFields: INodeProperties[] = [
 	{
 		displayName: 'Recipient Name or ID',
-		name: 'recipientId',
+		name: Fields.RecipientId,
 		description:
 			'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 		required: true,
 		type: 'options',
 		typeOptions: {
 			loadOptionsMethod: 'getRecipients',
-			loadOptionsDependsOn: ['documentId'],
+			loadOptionsDependsOn: [Fields.DocumentId],
 		},
 		displayOptions: {
 			show: {
-				resource: ['recipient'],
+				resource: [Resources.Recipient],
 				operation: [
-					'updateRecipient',
-					'deleteRecipient',
-					'updateRecipientNotificationSettings',
-					'getRecipientNotificationSettings',
+					RecipientOperations.Update,
+					RecipientOperations.Delete,
+					RecipientOperations.UpdateNotificationSettings,
+					RecipientOperations.GetNotificationSettings,
 				],
 			},
 		},
@@ -82,13 +83,13 @@ export const recipientFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Recipient ID To Find',
-		name: 'recipientIdString',
+		name: Fields.RecipientIdString,
 		type: 'string',
 		required: true,
 		displayOptions: {
 			show: {
-				resource: ['recipient'],
-				operation: ['findRecipient'],
+				resource: [Resources.Recipient],
+				operation: [RecipientOperations.Find],
 			},
 		},
 		default: '',
@@ -97,13 +98,13 @@ export const recipientFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'First Name',
-		name: 'firstName',
+		name: Fields.FirstName,
 		type: 'string',
 		required: true,
 		displayOptions: {
 			show: {
-				resource: ['recipient'],
-				operation: ['addRecipient'],
+				resource: [Resources.Recipient],
+				operation: [RecipientOperations.Add],
 			},
 		},
 		default: '',
@@ -111,12 +112,12 @@ export const recipientFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'First Name',
-		name: 'firstNameOptional',
+		name: Fields.FirstNameOptional,
 		type: 'string',
 		displayOptions: {
 			show: {
-				resource: ['recipient'],
-				operation: ['updateRecipient'],
+				resource: [Resources.Recipient],
+				operation: [RecipientOperations.Update],
 			},
 		},
 		default: '',
@@ -124,13 +125,13 @@ export const recipientFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Last Name',
-		name: 'lastName',
+		name: Fields.LastName,
 		type: 'string',
 		required: true,
 		displayOptions: {
 			show: {
-				resource: ['recipient'],
-				operation: ['addRecipient'],
+				resource: [Resources.Recipient],
+				operation: [RecipientOperations.Add],
 			},
 		},
 		default: '',
@@ -138,12 +139,12 @@ export const recipientFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Last Name',
-		name: 'lastNameOptional',
+		name: Fields.LastNameOptional,
 		type: 'string',
 		displayOptions: {
 			show: {
-				resource: ['recipient'],
-				operation: ['updateRecipient'],
+				resource: [Resources.Recipient],
+				operation: [RecipientOperations.Update],
 			},
 		},
 		default: '',
@@ -151,13 +152,13 @@ export const recipientFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Email',
-		name: 'email',
+		name: Fields.Email,
 		type: 'string',
 		required: true,
 		displayOptions: {
 			show: {
-				resource: ['recipient'],
-				operation: ['addRecipient'],
+				resource: [Resources.Recipient],
+				operation: [RecipientOperations.Add],
 			},
 		},
 		default: '',
@@ -166,12 +167,12 @@ export const recipientFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Email',
-		name: 'emailOptional',
+		name: Fields.EmailOptional,
 		type: 'string',
 		displayOptions: {
 			show: {
-				resource: ['recipient'],
-				operation: ['updateRecipient'],
+				resource: [Resources.Recipient],
+				operation: [RecipientOperations.Update],
 			},
 		},
 		default: '',
@@ -180,13 +181,13 @@ export const recipientFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Phone Number',
-		name: 'phoneNumber',
+		name: Fields.PhoneNumber,
 		type: 'string',
 		required: true,
 		displayOptions: {
 			show: {
-				resource: ['recipient'],
-				operation: ['addRecipient'],
+				resource: [Resources.Recipient],
+				operation: [RecipientOperations.Add],
 			},
 		},
 		default: '',
@@ -195,12 +196,12 @@ export const recipientFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Phone Number',
-		name: 'phoneNumberOptional',
+		name: Fields.PhoneNumberOptional,
 		type: 'string',
 		displayOptions: {
 			show: {
-				resource: ['recipient'],
-				operation: ['updateRecipient'],
+				resource: [Resources.Recipient],
+				operation: [RecipientOperations.Update],
 			},
 		},
 		default: '',
@@ -209,12 +210,12 @@ export const recipientFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Access Level',
-		name: 'accessLevel',
+		name: Fields.AccessLevel,
 		type: 'options',
 		displayOptions: {
 			show: {
-				resource: ['recipient'],
-				operation: ['addRecipient'],
+				resource: [Resources.Recipient],
+				operation: [RecipientOperations.Add],
 			},
 		},
 		options: [
@@ -233,12 +234,12 @@ export const recipientFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Access Level',
-		name: 'accessLevelOptional',
+		name: Fields.AccessLevelOptional,
 		type: 'options',
 		displayOptions: {
 			show: {
-				resource: ['recipient'],
-				operation: ['updateRecipient'],
+				resource: [Resources.Recipient],
+				operation: [RecipientOperations.Update],
 			},
 		},
 		options: [
@@ -260,7 +261,7 @@ export const recipientFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Status',
-		name: 'statusOptional',
+		name: Fields.StatusOptional,
 		type: 'options',
 		default: '',
 		options: [
@@ -279,22 +280,22 @@ export const recipientFields: INodeProperties[] = [
 		],
 		displayOptions: {
 			show: {
-				resource: ['recipient'],
-				operation: ['updateRecipient'],
+				resource: [Resources.Recipient],
+				operation: [RecipientOperations.Update],
 			},
 		},
 		description: 'Block or unblock the recipient (optional)',
 	},
 	{
 		displayName: 'Notification For Agreement Signed',
-		name: 'agreementSigned',
+		name: Fields.AgreementSigned,
 		type: 'options',
 		default: '',
 		description: 'Notification method for agreement signed',
 		displayOptions: {
 			show: {
-				resource: ['recipient'],
-				operation: ['updateRecipientNotificationSettings'],
+				resource: [Resources.Recipient],
+				operation: [RecipientOperations.UpdateNotificationSettings],
 			},
 		},
 		// eslint-disable-next-line
@@ -323,14 +324,14 @@ export const recipientFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Notification For Addon Added',
-		name: 'addonAdded',
+		name: Fields.AddonAdded,
 		type: 'options',
 		default: '',
 		description: 'Notification method for addon added',
 		displayOptions: {
 			show: {
-				resource: ['recipient'],
-				operation: ['updateRecipientNotificationSettings'],
+				resource: [Resources.Recipient],
+				operation: [RecipientOperations.UpdateNotificationSettings],
 			},
 		},
 		// eslint-disable-next-line
@@ -359,14 +360,14 @@ export const recipientFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Notification For Payment Made',
-		name: 'paymentMade',
+		name: Fields.PaymentMade,
 		type: 'options',
 		default: '',
 		description: 'Notification method for payment made',
 		displayOptions: {
 			show: {
-				resource: ['recipient'],
-				operation: ['updateRecipientNotificationSettings'],
+				resource: [Resources.Recipient],
+				operation: [RecipientOperations.UpdateNotificationSettings],
 			},
 		},
 		// eslint-disable-next-line
@@ -395,14 +396,14 @@ export const recipientFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Notification For Message Received',
-		name: 'messageReceived',
+		name: Fields.MessageReceived,
 		type: 'options',
 		default: '',
 		description: 'Notification method for message received',
 		displayOptions: {
 			show: {
-				resource: ['recipient'],
-				operation: ['updateRecipientNotificationSettings'],
+				resource: [Resources.Recipient],
+				operation: [RecipientOperations.UpdateNotificationSettings],
 			},
 		},
 		// eslint-disable-next-line
@@ -431,14 +432,14 @@ export const recipientFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Notification For Media Added',
-		name: 'mediaAdded',
+		name: Fields.MediaAdded,
 		type: 'options',
 		default: '',
 		description: 'Notification method for media added',
 		displayOptions: {
 			show: {
-				resource: ['recipient'],
-				operation: ['updateRecipientNotificationSettings'],
+				resource: [Resources.Recipient],
+				operation: [RecipientOperations.UpdateNotificationSettings],
 			},
 		},
 		// eslint-disable-next-line
@@ -467,14 +468,14 @@ export const recipientFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Notification For Document Status Changed',
-		name: 'documentStatusChanged',
+		name: Fields.DocumentStatusChanged,
 		type: 'options',
 		default: '',
 		description: 'Notification method for document status changed',
 		displayOptions: {
 			show: {
-				resource: ['recipient'],
-				operation: ['updateRecipientNotificationSettings'],
+				resource: [Resources.Recipient],
+				operation: [RecipientOperations.UpdateNotificationSettings],
 			},
 		},
 		// eslint-disable-next-line
@@ -503,20 +504,20 @@ export const recipientFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Workspace Name or ID',
-		name: 'workspaceId',
+		name: Fields.WorkspaceId,
 		type: 'options',
 		typeOptions: {
 			loadOptionsMethod: 'getWorkspaces',
 		},
 		displayOptions: {
 			show: {
-				resource: ['recipient'],
+				resource: [Resources.Recipient],
 				operation: [
-					'addRecipient',
-					'deleteRecipient',
-					'updateRecipient',
-					'updateRecipientNotificationSettings',
-					'getRecipientNotificationSettings',
+					RecipientOperations.Add,
+					RecipientOperations.Delete,
+					RecipientOperations.Update,
+					RecipientOperations.UpdateNotificationSettings,
+					RecipientOperations.GetNotificationSettings,
 				],
 			},
 		},
@@ -527,21 +528,21 @@ export const recipientFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Document Name or ID',
-		name: 'documentId',
+		name: Fields.DocumentId,
 		type: 'options',
 		typeOptions: {
 			loadOptionsMethod: 'getDocuments',
-			loadOptionsDependsOn: ['workspaceId'],
+			loadOptionsDependsOn: [Fields.WorkspaceId],
 		},
 		displayOptions: {
 			show: {
-				resource: ['recipient'],
+				resource: [Resources.Recipient],
 				operation: [
-					'addRecipient',
-					'updateRecipient',
-					'deleteRecipient',
-					'updateRecipientNotificationSettings',
-					'getRecipientNotificationSettings',
+					RecipientOperations.Add,
+					RecipientOperations.Update,
+					RecipientOperations.Delete,
+					RecipientOperations.UpdateNotificationSettings,
+					RecipientOperations.GetNotificationSettings,
 				],
 			},
 		},
@@ -551,4 +552,3 @@ export const recipientFields: INodeProperties[] = [
 			'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 	},
 ];
-

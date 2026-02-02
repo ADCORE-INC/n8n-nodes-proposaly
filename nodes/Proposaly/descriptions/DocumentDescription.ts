@@ -1,84 +1,86 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { Fields, Resources, DocumentOperations } from '../constants';
 
 export const documentOperations: INodeProperties[] = [
+	// eslint-disable-next-line n8n-nodes-base/node-param-default-missing
 	{
 		displayName: 'Operation',
-		name: 'operation',
+		name: Fields.Operation,
 		type: 'options',
 		displayOptions: {
 			show: {
-				resource: ['document'],
+				resource: [Resources.Document],
 			},
 		},
 		options: [
 			{
 				name: 'Create Document',
-				value: 'createDocument',
+				value: DocumentOperations.Create,
 				description: 'Create a new document in a workspace using the master template',
 				action: 'Create a new document in a workspace using the master template',
 			},
 			{
 				name: 'Create Document From Lead',
-				value: 'createDocumentFromLead',
+				value: DocumentOperations.CreateFromLead,
 				description: 'Create a new document in a workspace from a lead',
 				action: 'Create a new document in a workspace from a lead',
 			},
 			{
 				name: 'Create Document From Template',
-				value: 'createDocumentFromTemplate',
+				value: DocumentOperations.CreateFromTemplate,
 				description: 'Create a new document in a workspace from a template',
 				action: 'Create a new document in a workspace from a template',
 			},
 			{
 				name: 'Create Document View Only Link',
-				value: 'createDocumentViewOnlyLink',
+				value: DocumentOperations.CreateViewOnlyLink,
 				description: 'Create a view only link for a document',
 				action: 'Create a view only link for a document',
 			},
 			{
 				name: 'Delete Document',
-				value: 'deleteDocument',
+				value: DocumentOperations.Delete,
 				description: 'Delete a document in a workspace',
 				action: 'Delete a document in a workspace',
 			},
 			{
 				name: 'Duplicate Document',
-				value: 'duplicateDocument',
+				value: DocumentOperations.Duplicate,
 				description: 'Creates a duplicate of an existing document within the same workspace',
 				action: 'Creates a duplicate of an existing document within the same workspace',
 			},
 			{
 				name: 'Find Document By ID',
-				value: 'findDocumentById',
+				value: DocumentOperations.FindById,
 				description: 'Find a document in a workspace by ID',
 				action: 'Find a document in a workspace by ID',
 			},
 			{
 				name: 'Move Document Stage',
-				value: 'moveDocumentStage',
+				value: DocumentOperations.MoveStage,
 				description: 'Move a document to a different stage',
 				action: 'Move a document to a different stage',
 			},
 			{
 				name: 'Share Document',
-				value: 'shareDocument',
+				value: DocumentOperations.Share,
 				description: 'Sends a share notification to recipients',
 				action: 'Sends a share notification to recipients',
 			},
 			{
 				name: 'Transfer Document Ownership',
-				value: 'transferDocumentOwnership',
+				value: DocumentOperations.TransferOwnership,
 				description: 'Transfer ownership of a document to a new owner',
 				action: 'Transfer ownership of a document to a new owner',
 			},
 			{
 				name: 'Update Document',
-				value: 'updateDocument',
+				value: DocumentOperations.Update,
 				description: 'Update a document in a workspace',
 				action: 'Update a document in a workspace',
 			},
 		],
-		default: 'createDocument',
+		default: DocumentOperations.Create,
 		noDataExpression: true,
 	},
 ];
@@ -86,25 +88,25 @@ export const documentOperations: INodeProperties[] = [
 export const documentFields: INodeProperties[] = [
 	{
 		displayName: 'Workspace Name or ID',
-		name: 'workspaceId',
+		name: Fields.WorkspaceId,
 		type: 'options',
 		typeOptions: {
 			loadOptionsMethod: 'getWorkspaces',
 		},
 		displayOptions: {
 			show: {
-				resource: ['document'],
+				resource: [Resources.Document],
 				operation: [
-					'createDocument',
-					'deleteDocument',
-					'duplicateDocument',
-					'moveDocumentStage',
-					'shareDocument',
-					'transferDocumentOwnership',
-					'updateDocument',
-					'createDocumentFromLead',
-					'createDocumentFromTemplate',
-					'createDocumentViewOnlyLink',
+					DocumentOperations.Create,
+					DocumentOperations.Delete,
+					DocumentOperations.Duplicate,
+					DocumentOperations.MoveStage,
+					DocumentOperations.Share,
+					DocumentOperations.TransferOwnership,
+					DocumentOperations.Update,
+					DocumentOperations.CreateFromLead,
+					DocumentOperations.CreateFromTemplate,
+					DocumentOperations.CreateViewOnlyLink,
 				],
 			},
 		},
@@ -115,23 +117,23 @@ export const documentFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Document Name or ID',
-		name: 'documentId',
+		name: Fields.DocumentId,
 		type: 'options',
 		typeOptions: {
 			loadOptionsMethod: 'getDocuments',
-			loadOptionsDependsOn: ['workspaceId'],
+			loadOptionsDependsOn: [Fields.WorkspaceId],
 		},
 		displayOptions: {
 			show: {
-				resource: ['document'],
+				resource: [Resources.Document],
 				operation: [
-					'createDocumentViewOnlyLink',
-					'deleteDocument',
-					'duplicateDocument',
-					'moveDocumentStage',
-					'shareDocument',
-					'transferDocumentOwnership',
-					'updateDocument',
+					DocumentOperations.CreateViewOnlyLink,
+					DocumentOperations.Delete,
+					DocumentOperations.Duplicate,
+					DocumentOperations.MoveStage,
+					DocumentOperations.Share,
+					DocumentOperations.TransferOwnership,
+					DocumentOperations.Update,
 				],
 			},
 		},
@@ -142,16 +144,16 @@ export const documentFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Document Template Name or ID',
-		name: 'documentTemplateId',
+		name: Fields.DocumentTemplateId,
 		type: 'options',
 		typeOptions: {
 			loadOptionsMethod: 'getDocumentTemplates',
-			loadOptionsDependsOn: ['workspaceId'],
+			loadOptionsDependsOn: [Fields.WorkspaceId],
 		},
 		displayOptions: {
 			show: {
-				resource: ['document'],
-				operation: ['createDocumentFromTemplate'],
+				resource: [Resources.Document],
+				operation: [DocumentOperations.CreateFromTemplate],
 			},
 		},
 		default: '',
@@ -161,31 +163,31 @@ export const documentFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Document ID',
-		name: 'documentIdString',
+		name: Fields.DocumentIdString,
 		type: 'string',
 		default: '',
 		required: true,
 		displayOptions: {
 			show: {
-				resource: ['document'],
-				operation: ['findDocumentById'],
+				resource: [Resources.Document],
+				operation: [DocumentOperations.FindById],
 			},
 		},
 		description: 'ID of the document to find',
 	},
 	{
 		displayName: 'Document Title',
-		name: 'documentTitle',
+		name: Fields.DocumentTitle,
 		type: 'string',
 		required: true,
 		displayOptions: {
 			show: {
-				resource: ['document'],
+				resource: [Resources.Document],
 				operation: [
-					'createDocumentFromTemplate',
-					'createDocument',
-					'createDocumentFromLead',
-					'duplicateDocument',
+					DocumentOperations.CreateFromTemplate,
+					DocumentOperations.Create,
+					DocumentOperations.CreateFromLead,
+					DocumentOperations.Duplicate,
 				],
 			},
 		},
@@ -194,12 +196,12 @@ export const documentFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'New Title',
-		name: 'documentTitleOptional',
+		name: Fields.DocumentTitleOptional,
 		type: 'string',
 		displayOptions: {
 			show: {
-				resource: ['document'],
-				operation: ['updateDocument'],
+				resource: [Resources.Document],
+				operation: [DocumentOperations.Update],
 			},
 		},
 		default: '',
@@ -207,13 +209,13 @@ export const documentFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Lead ID',
-		name: 'leadId',
+		name: Fields.LeadId,
 		type: 'string',
 		required: true,
 		displayOptions: {
 			show: {
-				resource: ['document'],
-				operation: ['createDocumentFromLead'],
+				resource: [Resources.Document],
+				operation: [DocumentOperations.CreateFromLead],
 			},
 		},
 		default: '',
@@ -222,16 +224,16 @@ export const documentFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Recipients To Share With',
-		name: 'recipients',
+		name: Fields.Recipients,
 		type: 'multiOptions',
 		typeOptions: {
 			loadOptionsMethod: 'getRecipients',
-			loadOptionsDependsOn: ['documentId'],
+			loadOptionsDependsOn: [Fields.DocumentId],
 		},
 		displayOptions: {
 			show: {
-				resource: ['document'],
-				operation: ['shareDocument'],
+				resource: [Resources.Document],
+				operation: [DocumentOperations.Share],
 			},
 		},
 		default: [],
@@ -240,13 +242,13 @@ export const documentFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Expires After',
-		name: 'expiresAfter',
+		name: Fields.ExpiresAfter,
 		type: 'options',
 		required: true,
 		displayOptions: {
 			show: {
-				resource: ['document'],
-				operation: ['createDocumentViewOnlyLink'],
+				resource: [Resources.Document],
+				operation: [DocumentOperations.CreateViewOnlyLink],
 			},
 		},
 		options: [
@@ -268,55 +270,55 @@ export const documentFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Copy Recipients? (Ignore By Default)',
-		name: 'copyRecipients',
+		name: Fields.CopyRecipients,
 		type: 'boolean',
 		default: false,
 		displayOptions: {
 			show: {
-				resource: ['document'],
-				operation: ['createDocumentFromTemplate', 'duplicateDocument'],
+				resource: [Resources.Document],
+				operation: [DocumentOperations.CreateFromTemplate, DocumentOperations.Duplicate],
 			},
 		},
 	},
 	{
 		displayName: 'Copy Price Quote? (Ignore By Default)',
-		name: 'copyPriceQuote',
+		name: Fields.CopyPriceQuote,
 		type: 'boolean',
 		default: false,
 		displayOptions: {
 			show: {
-				resource: ['document'],
-				operation: ['createDocumentFromTemplate', 'duplicateDocument'],
+				resource: [Resources.Document],
+				operation: [DocumentOperations.CreateFromTemplate, DocumentOperations.Duplicate],
 			},
 		},
 	},
 	{
 		displayName: 'Copy Add-Ons? (Ignore By Default)',
-		name: 'copyAddons',
+		name: Fields.CopyAddons,
 		type: 'boolean',
 		default: false,
 		displayOptions: {
 			show: {
-				resource: ['document'],
-				operation: ['createDocumentFromTemplate', 'duplicateDocument'],
+				resource: [Resources.Document],
+				operation: [DocumentOperations.CreateFromTemplate, DocumentOperations.Duplicate],
 			},
 		},
 	},
 	{
 		displayName: 'Copy Attachments? (Ignore By Default)',
-		name: 'copyAttachments',
+		name: Fields.CopyAttachments,
 		type: 'boolean',
 		default: false,
 		displayOptions: {
 			show: {
-				resource: ['document'],
-				operation: ['createDocumentFromTemplate', 'duplicateDocument'],
+				resource: [Resources.Document],
+				operation: [DocumentOperations.CreateFromTemplate, DocumentOperations.Duplicate],
 			},
 		},
 	},
 	{
 		displayName: 'New Stage',
-		name: 'newStage',
+		name: Fields.NewStage,
 		required: true,
 		type: 'options',
 		// eslint-disable-next-line
@@ -357,20 +359,20 @@ export const documentFields: INodeProperties[] = [
 		default: 'Draft',
 		displayOptions: {
 			show: {
-				resource: ['document'],
-				operation: ['moveDocumentStage'],
+				resource: [Resources.Document],
+				operation: [DocumentOperations.MoveStage],
 			},
 		},
 	},
 	{
 		displayName: 'Reason Archived',
-		name: 'reasonArchived',
+		name: Fields.ReasonArchived,
 		type: 'string',
 		default: '',
 		required: true,
 		displayOptions: {
 			show: {
-				resource: ['document'],
+				resource: [Resources.Document],
 				newStage: ['Archived'],
 				newStageOptional: ['Archived'],
 			},
@@ -379,34 +381,34 @@ export const documentFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'New Owner Email',
-		name: 'newOwnerEmail',
+		name: Fields.NewOwnerEmail,
 		type: 'string',
 		default: '',
 		required: true,
 		displayOptions: {
 			show: {
-				resource: ['document'],
-				operation: ['transferDocumentOwnership'],
+				resource: [Resources.Document],
+				operation: [DocumentOperations.TransferOwnership],
 			},
 		},
 		description: 'Email of the owner to transfer the document to',
 	},
 	{
 		displayName: 'New Owner Email',
-		name: 'newOwnerEmail',
+		name: Fields.NewOwnerEmail,
 		type: 'string',
 		default: '',
 		displayOptions: {
 			show: {
-				resource: ['document'],
-				operation: ['updateDocument'],
+				resource: [Resources.Document],
+				operation: [DocumentOperations.Update],
 			},
 		},
 		description: 'Email of the new owner',
 	},
 	{
 		displayName: 'New Stage',
-		name: 'newStageOptional',
+		name: Fields.NewStageOptional,
 		type: 'options',
 		// eslint-disable-next-line
 		options: [
@@ -450,11 +452,10 @@ export const documentFields: INodeProperties[] = [
 		default: '',
 		displayOptions: {
 			show: {
-				resource: ['document'],
-				operation: ['updateDocument'],
+				resource: [Resources.Document],
+				operation: [DocumentOperations.Update],
 			},
 		},
 		description: 'New stage of the document',
 	},
 ];
-

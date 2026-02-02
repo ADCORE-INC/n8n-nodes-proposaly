@@ -1,13 +1,14 @@
 import { IDataObject, IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { Document, PaginatedApiResponse } from '../../types';
 import { proposalyRequest } from '../../transport';
+import { Fields } from '../../constants';
 
 export async function findDocumentOperation(
 	context: IExecuteFunctions,
 	items: INodeExecutionData[],
 	itemIndex: number,
 ): Promise<INodeExecutionData> {
-	const documentId = context.getNodeParameter('documentIdString', itemIndex) as string;
+	const documentId = context.getNodeParameter(Fields.DocumentIdString, itemIndex) as string;
 
 	const responseData: PaginatedApiResponse<Document> = await proposalyRequest(context, {
 		method: 'GET',

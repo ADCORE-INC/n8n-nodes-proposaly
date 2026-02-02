@@ -1,30 +1,32 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { Fields, Resources, WorkspaceOperations } from '../constants';
 
 export const workspaceOperations: INodeProperties[] = [
+	// eslint-disable-next-line n8n-nodes-base/node-param-default-missing
 	{
 		displayName: 'Operation',
-		name: 'operation',
+		name: Fields.Operation,
 		type: 'options',
 		displayOptions: {
 			show: {
-				resource: ['workspace'],
+				resource: [Resources.Workspace],
 			},
 		},
 		options: [
 			{
 				name: 'Create Workspace',
-				value: 'addWorkspace',
+				value: WorkspaceOperations.Add,
 				description: 'Create a new workspace',
 				action: 'Create a new workspace',
 			},
 			{
 				name: 'Find Workspace By ID',
-				value: 'findWorkspaceById',
+				value: WorkspaceOperations.FindById,
 				description: 'Find a workspace by ID',
 				action: 'Find a workspace by ID',
 			},
 		],
-		default: 'addWorkspace',
+		default: WorkspaceOperations.Add,
 		noDataExpression: true,
 	},
 ];
@@ -32,13 +34,13 @@ export const workspaceOperations: INodeProperties[] = [
 export const workspaceFields: INodeProperties[] = [
 	{
 		displayName: 'Workspace ID To Find',
-		name: 'workspaceIdString',
+		name: Fields.WorkspaceIdString,
 		type: 'string',
 		required: true,
 		displayOptions: {
 			show: {
-				resource: ['workspace'],
-				operation: ['findWorkspaceById'],
+				resource: [Resources.Workspace],
+				operation: [WorkspaceOperations.FindById],
 			},
 		},
 		default: '',
@@ -47,21 +49,21 @@ export const workspaceFields: INodeProperties[] = [
 	},
 	{
 		displayName: 'Workspace Name',
-		name: 'workspaceName',
+		name: Fields.WorkspaceName,
 		type: 'string',
 		default: '',
 		required: true,
 		displayOptions: {
 			show: {
-				resource: ['workspace'],
-				operation: ['addWorkspace'],
+				resource: [Resources.Workspace],
+				operation: [WorkspaceOperations.Add],
 			},
 		},
 		description: 'Name of the workspace',
 	},
 	{
 		displayName: 'Workspace Type',
-		name: 'workspaceType',
+		name: Fields.WorkspaceType,
 		type: 'options',
 		options: [
 			{ name: 'Proposal', value: 'proposal' },
@@ -72,11 +74,10 @@ export const workspaceFields: INodeProperties[] = [
 		required: true,
 		displayOptions: {
 			show: {
-				resource: ['workspace'],
-				operation: ['addWorkspace'],
+				resource: [Resources.Workspace],
+				operation: [WorkspaceOperations.Add],
 			},
 		},
 		default: 'proposal',
 	},
 ];
-

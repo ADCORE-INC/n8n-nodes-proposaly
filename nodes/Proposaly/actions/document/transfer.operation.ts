@@ -1,5 +1,6 @@
 import { IDataObject, IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { proposalyRequest } from '../../transport';
+import { Fields } from '../../constants';
 
 type Response = {
 	document_id: string;
@@ -15,8 +16,8 @@ export async function transferDocumentOwnershipOperation(
 	items: INodeExecutionData[],
 	itemIndex: number,
 ): Promise<INodeExecutionData> {
-	const documentId = context.getNodeParameter('documentId', itemIndex) as string;
-	const newOwnerEmail = context.getNodeParameter('newOwnerEmail', itemIndex) as string;
+	const documentId = context.getNodeParameter(Fields.DocumentId, itemIndex) as string;
+	const newOwnerEmail = context.getNodeParameter(Fields.NewOwnerEmail, itemIndex) as string;
 
 	const body: IDataObject = {
 		owner_email: newOwnerEmail,
