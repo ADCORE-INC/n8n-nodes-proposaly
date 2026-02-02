@@ -29,6 +29,7 @@ export class ProposalyTrigger implements INodeType {
 		polling: true,
 		inputs: [],
 		outputs: ['main'] as NodeConnectionType[],
+		usableAsTool: true,
 		credentials: [
 			{
 				name: 'proposalyApi',
@@ -137,8 +138,8 @@ export class ProposalyTrigger implements INodeType {
 					path: '/workspaces',
 				});
 
-				// API might return array directly or object with data
-				const items: Workspace[] = Array.isArray(workspaces) ? workspaces : workspaces.data || [];
+				// API now always returns an array of workspaces
+				const items: Workspace[] = Array.isArray(workspaces) ? workspaces : [];
 
 				return items.map((workspace) => ({
 					name: workspace.workspace_name,
