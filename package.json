@@ -20,7 +20,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/ADCORE-INC/n8n.proposaly.io.git"
+		"url": "https://github.com/ADCORE-INC/n8n-nodes-proposaly"
 	},
 	"scripts": {
 		"build": "n8n-node build",
