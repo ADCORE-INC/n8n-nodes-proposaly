@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-proposaly",
-	"version": "0.1.2",
+	"version": "0.1.3",
 	"description": "n8n nodes for Proposaly",
 	"license": "MIT",
 	"homepage": "https://github.com/ADCORE-INC/n8n.proposaly.io",
