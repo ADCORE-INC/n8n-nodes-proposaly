@@ -587,6 +587,7 @@ export const leadFields: INodeProperties[] = [
 		type: 'options',
 		typeOptions: {
 			loadOptionsMethod: 'getArchivedLeads',
+			loadOptionsDependsOn: ['workspaceId'],
 		},
 		displayOptions: {
 			show: {
