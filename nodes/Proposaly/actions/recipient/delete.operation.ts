@@ -14,5 +14,5 @@ export async function deleteRecipientOperation(
 		path: `/recipients/${recipientId}`,
 	});
 
-	return { json: { deleted: true } };
+	return { json: { deleted: true }, pairedItem: { item: itemIndex } };
 }

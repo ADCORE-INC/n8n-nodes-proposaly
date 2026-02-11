@@ -19,8 +19,11 @@ export async function findDocumentOperation(
 	});
 
 	if (responseData && responseData.entities.length > 0) {
-		return { json: responseData.entities[0] as unknown as IDataObject };
+		return {
+			json: responseData.entities[0] as unknown as IDataObject,
+			pairedItem: { item: itemIndex },
+		};
 	}
 
-	return { json: { message: 'Document not found' } };
+	return { json: { message: 'Document not found' }, pairedItem: { item: itemIndex } };
 }

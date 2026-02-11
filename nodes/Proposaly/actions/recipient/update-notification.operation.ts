@@ -51,5 +51,5 @@ export async function updateRecipientNotificationOperation(
 		body,
 	});
 
-	return { json: responseData };
+	return { json: responseData, pairedItem: { item: itemIndex } };
 }

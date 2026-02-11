@@ -32,5 +32,5 @@ export async function addRecipientOperation(
 		body,
 	});
 
-	return { json: responseData };
+	return { json: responseData, pairedItem: { item: itemIndex } };
 }

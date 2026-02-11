@@ -17,5 +17,5 @@ export async function reactivateLeadOperation(
 		},
 	});
 
-	return { json: responseData };
+	return { json: responseData, pairedItem: { item: itemIndex } };
 }

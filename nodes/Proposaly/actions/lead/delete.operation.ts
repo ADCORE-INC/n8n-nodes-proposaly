@@ -14,5 +14,5 @@ export async function deleteLeadOperation(
 		path: `/leads/${leadId}`,
 	});
 
-	return { json: { deleted: true } };
+	return { json: { deleted: true }, pairedItem: { item: itemIndex } };
 }

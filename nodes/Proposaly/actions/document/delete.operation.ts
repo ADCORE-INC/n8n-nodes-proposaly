@@ -14,5 +14,5 @@ export async function deleteDocumentOperation(
 		path: `/documents/${documentId}`,
 	});
 
-	return { json: { deleted: true } };
+	return { json: { deleted: true }, pairedItem: { item: itemIndex } };
 }

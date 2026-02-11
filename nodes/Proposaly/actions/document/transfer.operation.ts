@@ -29,5 +29,5 @@ export async function transferDocumentOwnershipOperation(
 		body,
 	});
 
-	return { json: responseData };
+	return { json: responseData, pairedItem: { item: itemIndex } };
 }

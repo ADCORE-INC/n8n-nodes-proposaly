@@ -36,5 +36,5 @@ export async function duplicateDocumentOperation(
 		body,
 	});
 
-	return { json: responseData };
+	return { json: responseData, pairedItem: { item: itemIndex } };
 }

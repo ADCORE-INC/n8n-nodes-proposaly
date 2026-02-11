@@ -21,5 +21,5 @@ export async function addWorkspaceOperation(
 		body: data,
 	});
 
-	return { json: responseData };
+	return { json: responseData, pairedItem: { item: itemIndex } };
 }

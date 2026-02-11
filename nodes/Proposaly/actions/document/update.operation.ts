@@ -50,5 +50,5 @@ export async function updateDocumentOperation(
 		body,
 	});
 
-	return { json: responseData };
+	return { json: responseData, pairedItem: { item: itemIndex } };
 }

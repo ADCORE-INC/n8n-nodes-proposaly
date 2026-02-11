@@ -1,4 +1,9 @@
-import { IDataObject, INodeExecutionData, IExecuteFunctions, NodeOperationError } from 'n8n-workflow';
+import {
+	IDataObject,
+	INodeExecutionData,
+	IExecuteFunctions,
+	NodeOperationError,
+} from 'n8n-workflow';
 
 import { Recipient } from '../../types';
 import { proposalyRequest } from '../../transport';
@@ -28,9 +33,9 @@ export async function findRecipientOperation(
 
 	// Return the first element if there are multiple entries in the entities array
 	if (responseData && responseData.length > 0) {
-		return { json: responseData[0] as unknown as IDataObject };
+		return { json: responseData[0] as unknown as IDataObject, pairedItem: { item: itemIndex } };
 	}
 
 	// Return empty result if no entities found
-	return { json: {} };
+	return { json: {}, pairedItem: { item: itemIndex } };
 }

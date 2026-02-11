@@ -14,5 +14,5 @@ export async function getRecipientNotificationSettingsOperation(
 		path: `/recipients/${recipientId}/notifications`,
 	});
 
-	return { json: responseData };
+	return { json: responseData, pairedItem: { item: itemIndex } };
 }

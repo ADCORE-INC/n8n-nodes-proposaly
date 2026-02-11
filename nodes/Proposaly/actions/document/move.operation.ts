@@ -38,5 +38,5 @@ export async function moveDocumentStageOperation(
 		body,
 	});
 
-	return { json: responseData };
+	return { json: responseData, pairedItem: { item: itemIndex } };
 }

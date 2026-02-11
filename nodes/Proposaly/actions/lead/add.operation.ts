@@ -13,7 +13,9 @@ export async function addLeadOperation(
 	const clientName = context.getNodeParameter(Fields.ClientName, itemIndex) as string;
 	const leadType = context.getNodeParameter(Fields.LeadType, itemIndex) as LeadType;
 	const website =
-		leadType === 'business' ? (context.getNodeParameter(Fields.Website, itemIndex) as string) : undefined;
+		leadType === 'business'
+			? (context.getNodeParameter(Fields.Website, itemIndex) as string)
+			: undefined;
 	const country = context.getNodeParameter(Fields.Country, itemIndex) as string;
 	const leadSource = context.getNodeParameter(Fields.LeadSource, itemIndex) as string;
 	const leadSourceOther =
@@ -21,7 +23,10 @@ export async function addLeadOperation(
 			? (context.getNodeParameter(Fields.LeadSourceOther, itemIndex) as string)
 			: '';
 	const ownerEmail = context.getNodeParameter(Fields.OwnerEmail, itemIndex) as string;
-	const additionalFields = context.getNodeParameter(Fields.AdditionalFields, itemIndex) as IDataObject;
+	const additionalFields = context.getNodeParameter(
+		Fields.AdditionalFields,
+		itemIndex,
+	) as IDataObject;
 
 	const additional = {
 		street_address: additionalFields?.streetAddress as string | undefined,
@@ -50,5 +55,5 @@ export async function addLeadOperation(
 		body: data,
 	});
 
-	return { json: responseData };
+	return { json: responseData, pairedItem: { item: itemIndex } };
 }

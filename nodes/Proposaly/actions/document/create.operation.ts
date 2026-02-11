@@ -48,5 +48,5 @@ export async function createDocumentOperation(
 		body,
 	});
 
-	return { json: responseData };
+	return { json: responseData, pairedItem: { item: itemIndex } };
 }

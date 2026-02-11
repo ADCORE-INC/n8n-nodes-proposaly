@@ -20,8 +20,8 @@ export async function findWorkspaceOperation(
 	});
 
 	if (responseData.length > 0) {
-		return { json: responseData[0] as unknown as IDataObject };
+		return { json: responseData[0] as unknown as IDataObject, pairedItem: { item: itemIndex } };
 	}
 
-	return { json: {} };
+	return { json: {}, pairedItem: { item: itemIndex } };
 }

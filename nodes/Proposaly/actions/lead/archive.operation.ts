@@ -17,5 +17,5 @@ export async function archiveLeadOperation(
 		},
 	});
 
-	return { json: responseData };
+	return { json: responseData, pairedItem: { item: itemIndex } };
 }
