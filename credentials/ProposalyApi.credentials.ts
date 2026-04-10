@@ -2,16 +2,18 @@ import type {
 	IAuthenticateGeneric,
 	ICredentialType,
 	ICredentialTestRequest,
+	Icon,
 	INodeProperties,
 } from 'n8n-workflow';
 
-// eslint-disable-next-line
 export class ProposalyApi implements ICredentialType {
 	name = 'proposalyApi';
 
 	displayName = 'Proposaly API';
 
 	documentationUrl = 'https://docs.proposaly.com/';
+
+	icon: Icon = 'file:proposaly.svg';
 
 	properties: INodeProperties[] = [
 		{

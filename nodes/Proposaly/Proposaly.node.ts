@@ -104,16 +104,16 @@ export class Proposaly implements INodeType {
 				type: 'options',
 				options: [
 					{
+						name: 'Document',
+						value: Resources.Document,
+					},
+					{
 						name: 'Lead',
 						value: Resources.Lead,
 					},
 					{
 						name: 'Recipient',
 						value: Resources.Recipient,
-					},
-					{
-						name: 'Document',
-						value: Resources.Document,
 					},
 					{
 						name: 'Workspace',
