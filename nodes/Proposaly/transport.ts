@@ -5,8 +5,9 @@ import type {
 	IPollFunctions,
 	IDataObject,
 	IHttpRequestOptions,
+	JsonObject,
 } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
+import { NodeApiError, NodeOperationError } from 'n8n-workflow';
 import { PaginatedApiResponse } from './types';
 
 export type ProposalyContext =
@@ -87,11 +88,6 @@ function getErrorCode(error: unknown): string | undefined {
 	return typeof code === 'string' ? code : undefined;
 }
 
-function getResponseBody(error: unknown): unknown {
-	const errorData = error as { response?: { body?: unknown; data?: unknown }; error?: unknown };
-	return errorData?.response?.body ?? errorData?.response?.data ?? errorData?.error;
-}
-
 function isRetryableStatus(statusCode?: number): boolean {
 	if (!statusCode) {
 		return false;
@@ -136,16 +132,8 @@ function getStatusHint(statusCode?: number): string {
 	return 'Try again later.';
 }
 
-function safeStringify(value: unknown): string {
-	try {
-		return JSON.stringify(value, null, 2);
-	} catch {
-		return String(value);
-	}
-}
-
 function attachProposalyMetadata(
-	error: NodeOperationError,
+	error: NodeOperationError | NodeApiError,
 	metadata: ProposalyErrorMetadata,
 ): void {
 	(error as { proposaly?: ProposalyErrorMetadata }).proposaly = metadata;
@@ -161,15 +149,7 @@ export async function proposalyRequest<T = IDataObject>(
 	options: ProposalyRequestOptions,
 ): Promise<T> {
 	const credentials = await context.getCredentials('proposalyApi');
-	const apiKey = credentials.apiKey as string;
 	const baseUrl = credentials.url as string;
-
-	if (!apiKey) {
-		throw new NodeOperationError(
-			context.getNode(),
-			'The parameter "Proposaly API Key" has to be set!',
-		);
-	}
 
 	// Destructure path separately to avoid passing it to IHttpRequestOptions
 	const { path, ...restOptions } = options;
@@ -180,7 +160,6 @@ export async function proposalyRequest<T = IDataObject>(
 		headers: {
 			Accept: 'application/json',
 			'Content-Type': 'application/json',
-			Authorization: `Bearer ${apiKey}`,
 			...options.headers,
 		},
 		json: true,
@@ -209,13 +188,6 @@ export async function proposalyRequest<T = IDataObject>(
 
 		const requestLabel = getRequestLabel(options);
 		const hint = statusCode ? getStatusHint(statusCode) : 'Check your connection and URL.';
-		const detailPayload = {
-			request: requestLabel,
-			statusCode,
-			code: errorCode,
-			message: (error as Error).message,
-			response: getResponseBody(error),
-		};
 
 		const message = statusCode
 			? `Proposaly API request failed (${requestLabel}). HTTP ${statusCode}. ${hint}`
@@ -223,8 +195,10 @@ export async function proposalyRequest<T = IDataObject>(
 				? `Proposaly API request failed (${requestLabel}). Network error: ${errorCode}. ${hint}`
 				: `Proposaly API request failed (${requestLabel}). ${hint}`;
 
-		const nodeError = new NodeOperationError(context.getNode(), message, {
-			description: safeStringify(detailPayload),
+		const nodeError = new NodeApiError(context.getNode(), error as JsonObject, {
+			message,
+			description: hint,
+			httpCode: statusCode?.toString(),
 		});
 		attachProposalyMetadata(nodeError, metadata);
 		throw nodeError;

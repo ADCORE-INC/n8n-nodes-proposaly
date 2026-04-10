@@ -32,16 +32,16 @@ export const recipientOperations: INodeProperties[] = [
 				action: 'Find a recipient by ID',
 			},
 			{
-				name: 'Update Recipient',
-				value: RecipientOperations.Update,
-				description: 'Update a recipient in a document',
-				action: 'Update a recipient in a document',
-			},
-			{
 				name: 'Get Recipient Notification Settings',
 				value: RecipientOperations.GetNotificationSettings,
 				description: 'Retrieve notification preferences of a recipient',
 				action: 'Retrieve notification preferences of a recipient',
+			},
+			{
+				name: 'Update Recipient',
+				value: RecipientOperations.Update,
+				description: 'Update a recipient in a document',
+				action: 'Update a recipient in a document',
 			},
 			{
 				name: 'Update Recipient Notification Settings',
