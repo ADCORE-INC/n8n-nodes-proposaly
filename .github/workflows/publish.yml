@@ -26,5 +26,8 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Configure npm for trusted publishing
+        run: npm config set //registry.npmjs.org/:_authToken ''
+
       - name: Publish with provenance
         run: npm publish --provenance --access public --ignore-scripts
