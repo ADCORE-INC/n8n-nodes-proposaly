@@ -56,6 +56,12 @@ export const documentOperations: INodeProperties[] = [
 				action: 'Find a document in a workspace by ID',
 			},
 			{
+				name: 'Get Many Documents',
+				value: DocumentOperations.GetMany,
+				description: 'List documents in a workspace',
+				action: 'Get many documents',
+			},
+			{
 				name: 'Move Document Stage',
 				value: DocumentOperations.MoveStage,
 				description: 'Move a document to a different stage',
@@ -107,6 +113,7 @@ export const documentFields: INodeProperties[] = [
 					DocumentOperations.CreateFromLead,
 					DocumentOperations.CreateFromTemplate,
 					DocumentOperations.CreateViewOnlyLink,
+					DocumentOperations.GetMany,
 				],
 			},
 		},
@@ -457,5 +464,70 @@ export const documentFields: INodeProperties[] = [
 			},
 		},
 		description: 'New stage of the document',
+	},
+	{
+		displayName: 'Label Names or IDs',
+		name: Fields.Labels,
+		type: 'multiOptions',
+		typeOptions: {
+			loadOptionsMethod: 'getWorkspaceLabels',
+			loadOptionsDependsOn: [Fields.WorkspaceId],
+		},
+		default: [],
+		displayOptions: {
+			show: {
+				resource: [Resources.Document],
+				operation: [
+					DocumentOperations.Create,
+					DocumentOperations.CreateFromLead,
+					DocumentOperations.CreateFromTemplate,
+				],
+			},
+		},
+		description:
+			'Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+	},
+	{
+		displayName: 'Copy Team Members? (Ignore By Default)',
+		name: Fields.CopyTeamMembers,
+		type: 'boolean',
+		default: false,
+		displayOptions: {
+			show: {
+				resource: [Resources.Document],
+				operation: [DocumentOperations.CreateFromTemplate, DocumentOperations.Duplicate],
+			},
+		},
+		description: 'Whether team members from the template can also access the new document',
+	},
+	{
+		displayName: 'Return All',
+		name: Fields.ReturnAll,
+		type: 'boolean',
+		default: false,
+		displayOptions: {
+			show: {
+				resource: [Resources.Document],
+				operation: [DocumentOperations.GetMany],
+			},
+		},
+		description: 'Whether to return all results or only up to a given limit',
+	},
+	{
+		displayName: 'Limit',
+		name: Fields.Limit,
+		type: 'number',
+		typeOptions: {
+			minValue: 1,
+		},
+		default: 50,
+		displayOptions: {
+			show: {
+				resource: [Resources.Document],
+				operation: [DocumentOperations.GetMany],
+				[Fields.ReturnAll]: [false],
+			},
+		},
+		description: 'Max number of results to return',
 	},
 ];

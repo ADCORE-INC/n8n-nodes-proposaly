@@ -3,6 +3,7 @@ import { compact } from '../../utils';
 import { proposalyRequest } from '../../transport';
 import { LeadType } from '../../types';
 import { Fields } from '../../constants';
+import { leadExecutionData } from '../../shape';
 
 export async function addLeadOperation(
 	context: IExecuteFunctions,
@@ -55,5 +56,5 @@ export async function addLeadOperation(
 		body: data,
 	});
 
-	return { json: responseData, pairedItem: { item: itemIndex } };
+	return leadExecutionData(responseData, itemIndex);
 }

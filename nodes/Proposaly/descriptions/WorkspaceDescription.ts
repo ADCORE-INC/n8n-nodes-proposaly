@@ -25,6 +25,18 @@ export const workspaceOperations: INodeProperties[] = [
 				description: 'Find a workspace by ID',
 				action: 'Find a workspace by ID',
 			},
+			{
+				name: 'Get Many Workspaces',
+				value: WorkspaceOperations.GetMany,
+				description: 'List workspaces in your company',
+				action: 'Get many workspaces',
+			},
+			{
+				name: 'Get Workspace Stages',
+				value: WorkspaceOperations.GetStages,
+				description: 'List stages in a workspace',
+				action: 'Get workspace stages',
+			},
 		],
 		default: WorkspaceOperations.Add,
 		noDataExpression: true,
@@ -79,5 +91,53 @@ export const workspaceFields: INodeProperties[] = [
 			},
 		},
 		default: 'proposal',
+	},
+	{
+		displayName: 'Workspace Name or ID',
+		name: Fields.WorkspaceId,
+		type: 'options',
+		typeOptions: {
+			loadOptionsMethod: 'getWorkspaces',
+		},
+		displayOptions: {
+			show: {
+				resource: [Resources.Workspace],
+				operation: [WorkspaceOperations.GetStages],
+			},
+		},
+		default: '',
+		required: true,
+		description:
+			'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+	},
+	{
+		displayName: 'Return All',
+		name: Fields.ReturnAll,
+		type: 'boolean',
+		default: false,
+		displayOptions: {
+			show: {
+				resource: [Resources.Workspace],
+				operation: [WorkspaceOperations.GetMany],
+			},
+		},
+		description: 'Whether to return all results or only up to a given limit',
+	},
+	{
+		displayName: 'Limit',
+		name: Fields.Limit,
+		type: 'number',
+		typeOptions: {
+			minValue: 1,
+		},
+		default: 50,
+		displayOptions: {
+			show: {
+				resource: [Resources.Workspace],
+				operation: [WorkspaceOperations.GetMany],
+				[Fields.ReturnAll]: [false],
+			},
+		},
+		description: 'Max number of results to return',
 	},
 ];

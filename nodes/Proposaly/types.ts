@@ -16,6 +16,7 @@ export type Lead = {
 	lead_id: string;
 	workspace_id: string;
 	lead_type?: LeadType | null;
+	client_name?: string | null;
 	company?: string | null;
 	website?: string | null;
 	street_address?: string | null;

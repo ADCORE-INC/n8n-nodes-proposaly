@@ -2,6 +2,7 @@ import { INodeExecutionData, IExecuteFunctions } from 'n8n-workflow';
 import { Lead, PaginatedApiResponse } from '../../types';
 import { proposalyRequest } from '../../transport';
 import { Fields } from '../../constants';
+import { leadExecutionData } from '../../shape';
 
 export async function findLeadByIdOperation(
 	context: IExecuteFunctions,
@@ -18,11 +19,9 @@ export async function findLeadByIdOperation(
 		},
 	});
 
-	// Return the first element if there are multiple entries in the entities array
 	if (responseData && responseData.entities.length > 0) {
-		return { json: responseData.entities[0] as unknown as Lead, pairedItem: { item: itemIndex } };
+		return leadExecutionData(responseData.entities[0], itemIndex);
 	}
 
-	// Return empty result if no entities found
-	return { json: {}, pairedItem: { item: itemIndex } };
+	return leadExecutionData({}, itemIndex);
 }

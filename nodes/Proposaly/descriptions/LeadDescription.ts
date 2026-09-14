@@ -38,6 +38,12 @@ export const leadOperations: INodeProperties[] = [
 				action: 'Find a lead in a workspace by ID',
 			},
 			{
+				name: 'Get Many Leads',
+				value: LeadOperations.GetMany,
+				description: 'List leads in a workspace',
+				action: 'Get many leads',
+			},
+			{
 				name: 'Reactivate Lead',
 				value: LeadOperations.Reactivate,
 				description: 'Reactivate an archived lead in a workspace',
@@ -575,7 +581,7 @@ export const leadFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: [Resources.Lead],
-				operation: [LeadOperations.Create, LeadOperations.Reactivate],
+				operation: [LeadOperations.Create, LeadOperations.Reactivate, LeadOperations.GetMany],
 			},
 		},
 		default: '',
@@ -601,5 +607,66 @@ export const leadFields: INodeProperties[] = [
 		required: true,
 		description:
 			'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+	},
+	{
+		displayName: 'Status',
+		name: Fields.LeadStatus,
+		type: 'options',
+		options: [
+			{
+				name: 'All',
+				value: '',
+			},
+			{
+				name: 'Active',
+				value: 'Active',
+			},
+			{
+				name: 'Archived',
+				value: 'Archived',
+			},
+			{
+				name: 'Deleted',
+				value: 'Deleted',
+			},
+		],
+		default: '',
+		displayOptions: {
+			show: {
+				resource: [Resources.Lead],
+				operation: [LeadOperations.GetMany],
+			},
+		},
+		description: 'If empty, get leads of all statuses',
+	},
+	{
+		displayName: 'Return All',
+		name: Fields.ReturnAll,
+		type: 'boolean',
+		default: false,
+		displayOptions: {
+			show: {
+				resource: [Resources.Lead],
+				operation: [LeadOperations.GetMany],
+			},
+		},
+		description: 'Whether to return all results or only up to a given limit',
+	},
+	{
+		displayName: 'Limit',
+		name: Fields.Limit,
+		type: 'number',
+		typeOptions: {
+			minValue: 1,
+		},
+		default: 50,
+		displayOptions: {
+			show: {
+				resource: [Resources.Lead],
+				operation: [LeadOperations.GetMany],
+				[Fields.ReturnAll]: [false],
+			},
+		},
+		description: 'Max number of results to return',
 	},
 ];

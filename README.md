@@ -30,6 +30,7 @@ This node supports the following resources and operations:
 | Archive | Archive an existing lead |
 | Delete | Permanently delete a lead |
 | Find By ID | Retrieve a lead by its ID |
+| Get Many | List leads in a workspace (optional status filter) |
 | Reactivate | Reactivate an archived lead |
 | Update | Update lead properties |
 
@@ -38,9 +39,12 @@ This node supports the following resources and operations:
 | Operation | Description |
 |-----------|-------------|
 | Create | Create a new document |
+| Create From Lead | Create a document attached to a lead |
+| Create From Template | Create a document from a template |
 | Delete | Permanently delete a document |
 | Duplicate | Create a copy of an existing document |
 | Find By ID | Retrieve a document by its ID |
+| Get Many | List documents in a workspace |
 | Move Stage | Move a document to a different stage |
 | Create View Only Link | Generate a shareable view-only link |
 | Share | Share a document with recipients |
@@ -53,7 +57,8 @@ This node supports the following resources and operations:
 |-----------|-------------|
 | Add | Add a recipient to a document |
 | Delete | Remove a recipient from a document |
-| Find | Find recipients on a document |
+| Find | Find a recipient by ID |
+| Get Many | List recipients on a document |
 | Update | Update recipient details |
 | Get Notification Settings | Retrieve notification preferences for a recipient |
 | Update Notification Settings | Modify notification preferences for a recipient |
@@ -64,10 +69,26 @@ This node supports the following resources and operations:
 |-----------|-------------|
 | Add | Add a new workspace |
 | Find By ID | Retrieve a workspace by its ID |
+| Get Many | List workspaces in your company |
+| Get Stages | List stages in a workspace |
 
 ### Trigger Node
 
-The package also includes a **Proposaly Trigger** node that listens for webhook events from Proposaly, allowing you to start workflows when events occur in your Proposaly account.
+**Proposaly Trigger** is a **polling** trigger. It periodically asks Proposaly for new or changed records, then starts a workflow when it finds them.
+
+| Event | Description |
+|-----------|-------------|
+| New Lead | New active lead in a workspace |
+| Archived Lead | Lead archived in a workspace |
+| Deleted Lead | Lead deleted in a workspace |
+| New Document | New document in a workspace |
+| Document Moved to New Stage | Document entered the selected stage |
+| New Recipient | New recipient on a selected document |
+| New Workspace | New workspace in the company |
+
+The first production poll seeds the cursor and does not replay existing records. **Execute step** in the editor still returns a sample. **Limit** (default 50) caps how many new items are emitted on later polls.
+
+Lead trigger and lead action outputs include Zapier/Make-style fields: `client_name`, plus the first recipient lifted to `email`, `first_name`, `last_name`, and `phone_number`. The `recipients` array is still present.
 
 ## Credentials
 
@@ -105,10 +126,12 @@ This node has been tested with n8n version **1.x** and later.
 2. Select **Lead** as the resource
 3. Select **Create** as the operation
 4. Fill in the required fields:
-   - **Email**: The lead's email address
-   - **First Name**: The lead's first name
-   - **Last Name**: The lead's last name
+   - **Workspace**
+   - **Client Name**
+   - **Lead Type**, **Lead Source**, **Owner Email**, and **Country**
 5. Execute the node
+
+Lead outputs include `lead_id`, `client_name`, and first-recipient `email` / `first_name` / `last_name` when recipients exist.
 
 ### Using with AI Agents
 
@@ -127,7 +150,8 @@ return {
 
 ### Tips
 
-- **Webhook Trigger**: Use the Proposaly Trigger node to automatically start workflows when documents are viewed, signed, or when other events occur
+- **Polling Trigger**: Use the Proposaly Trigger node to start workflows on new leads, documents, recipients, workspaces, or stage moves. It polls; it does not receive webhooks.
+- **Get Many**: List operations return one n8n item per record, so downstream nodes run once per lead/document/recipient/workspace.
 - **Error Handling**: Enable "Continue On Fail" if you want your workflow to continue even if a Proposaly operation fails
 - **Batch Operations**: When processing multiple items, the node automatically handles each item in the input
 
@@ -141,6 +165,13 @@ return {
 ## Version history
 
 See [CHANGELOG.md](CHANGELOG.md) for a detailed version history.
+
+### Unreleased
+
+- **Get Many** for leads, documents, recipients, and workspaces, plus **Get Workspace Stages**
+- Lead outputs flattened to match Zapier/Make (`client_name`, first-recipient email/name/phone)
+- Polling triggers seed on first production poll instead of replaying history
+- Optional document labels and `copy_team_members` on create/duplicate
 
 ### 0.1.0
 

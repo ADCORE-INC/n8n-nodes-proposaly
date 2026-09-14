@@ -2,6 +2,7 @@ import { IDataObject, INodeExecutionData, IExecuteFunctions } from 'n8n-workflow
 import { compact } from '../../utils';
 import { proposalyRequest } from '../../transport';
 import { Fields } from '../../constants';
+import { leadExecutionData } from '../../shape';
 
 export async function updateLeadOperation(
 	context: IExecuteFunctions,
@@ -54,5 +55,5 @@ export async function updateLeadOperation(
 		body: data,
 	});
 
-	return { json: responseData, pairedItem: { item: itemIndex } };
+	return leadExecutionData(responseData, itemIndex);
 }

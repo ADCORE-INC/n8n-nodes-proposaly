@@ -1,6 +1,7 @@
 import { INodeExecutionData, IExecuteFunctions } from 'n8n-workflow';
 import { proposalyRequest } from '../../transport';
 import { Fields } from '../../constants';
+import { leadExecutionData } from '../../shape';
 
 export async function reactivateLeadOperation(
 	context: IExecuteFunctions,
@@ -17,5 +18,5 @@ export async function reactivateLeadOperation(
 		},
 	});
 
-	return { json: responseData, pairedItem: { item: itemIndex } };
+	return leadExecutionData(responseData, itemIndex);
 }

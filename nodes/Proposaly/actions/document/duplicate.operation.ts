@@ -17,6 +17,7 @@ export async function duplicateDocumentOperation(
 	const copyPriceQuote = context.getNodeParameter(Fields.CopyPriceQuote, itemIndex) as boolean;
 	const copyAddons = context.getNodeParameter(Fields.CopyAddons, itemIndex) as boolean;
 	const copyAttachments = context.getNodeParameter(Fields.CopyAttachments, itemIndex) as boolean;
+	const copyTeamMembers = context.getNodeParameter(Fields.CopyTeamMembers, itemIndex, false) as boolean;
 
 	const body: IDataObject = {
 		document_id: documentId,
@@ -24,6 +25,7 @@ export async function duplicateDocumentOperation(
 		copy_price_quote: copyPriceQuote,
 		copy_addons: copyAddons,
 		copy_attachments: copyAttachments,
+		copy_team_members: copyTeamMembers,
 	};
 
 	if (newTitle) {

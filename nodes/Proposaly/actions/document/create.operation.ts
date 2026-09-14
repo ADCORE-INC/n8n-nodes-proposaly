@@ -9,7 +9,9 @@ interface CreateDocumentParams {
 	copyPriceQuote?: boolean;
 	copyAddons?: boolean;
 	copyAttachments?: boolean;
+	copyTeamMembers?: boolean;
 	leadId?: string;
+	labels?: string[];
 }
 
 export async function createDocumentOperation(
@@ -38,8 +40,14 @@ export async function createDocumentOperation(
 	if (params.copyAttachments !== undefined) {
 		body.copy_attachments = params.copyAttachments;
 	}
+	if (params.copyTeamMembers !== undefined) {
+		body.copy_team_members = params.copyTeamMembers;
+	}
 	if (params.leadId) {
 		body.lead_id = params.leadId;
+	}
+	if (params.labels && params.labels.length > 0) {
+		body.labels = params.labels;
 	}
 
 	const responseData = await proposalyRequest(context, {

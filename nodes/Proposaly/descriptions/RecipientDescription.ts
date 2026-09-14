@@ -32,6 +32,12 @@ export const recipientOperations: INodeProperties[] = [
 				action: 'Find a recipient by ID',
 			},
 			{
+				name: 'Get Many Recipients',
+				value: RecipientOperations.GetMany,
+				description: 'List recipients on a document',
+				action: 'Get many recipients',
+			},
+			{
 				name: 'Get Recipient Notification Settings',
 				value: RecipientOperations.GetNotificationSettings,
 				description: 'Retrieve notification preferences of a recipient',
@@ -518,6 +524,7 @@ export const recipientFields: INodeProperties[] = [
 					RecipientOperations.Update,
 					RecipientOperations.UpdateNotificationSettings,
 					RecipientOperations.GetNotificationSettings,
+					RecipientOperations.GetMany,
 				],
 			},
 		},
@@ -543,6 +550,7 @@ export const recipientFields: INodeProperties[] = [
 					RecipientOperations.Delete,
 					RecipientOperations.UpdateNotificationSettings,
 					RecipientOperations.GetNotificationSettings,
+					RecipientOperations.GetMany,
 				],
 			},
 		},
@@ -550,5 +558,48 @@ export const recipientFields: INodeProperties[] = [
 		required: true,
 		description:
 			'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+	},
+	{
+		displayName: 'Include Blocked Recipients',
+		name: Fields.IncludeBlocked,
+		type: 'boolean',
+		default: false,
+		displayOptions: {
+			show: {
+				resource: [Resources.Recipient],
+				operation: [RecipientOperations.GetMany],
+			},
+		},
+		description: 'Whether blocked recipients should be included (excluded by default)',
+	},
+	{
+		displayName: 'Return All',
+		name: Fields.ReturnAll,
+		type: 'boolean',
+		default: false,
+		displayOptions: {
+			show: {
+				resource: [Resources.Recipient],
+				operation: [RecipientOperations.GetMany],
+			},
+		},
+		description: 'Whether to return all results or only up to a given limit',
+	},
+	{
+		displayName: 'Limit',
+		name: Fields.Limit,
+		type: 'number',
+		typeOptions: {
+			minValue: 1,
+		},
+		default: 50,
+		displayOptions: {
+			show: {
+				resource: [Resources.Recipient],
+				operation: [RecipientOperations.GetMany],
+				[Fields.ReturnAll]: [false],
+			},
+		},
+		description: 'Max number of results to return',
 	},
 ];

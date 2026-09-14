@@ -235,3 +235,39 @@ export async function proposalyRequestAll<T>(
 
 	return allItems;
 }
+
+export async function proposalyRequestLimited<T>(
+	context: ProposalyContext,
+	path: string,
+	qs: IDataObject = {},
+	limit?: number,
+): Promise<T[]> {
+	if (limit === undefined) {
+		return proposalyRequestAll<T>(context, path, qs);
+	}
+
+	let page: number | null = 1;
+	let allItems: T[] = [];
+
+	while (page !== null && allItems.length < limit) {
+		const response: PaginatedApiResponse<T> = await proposalyRequest(context, {
+			method: 'GET',
+			path,
+			qs: {
+				...qs,
+				page,
+			},
+		});
+
+		const items = Array.isArray(response) ? response : response.entities || [];
+		allItems = allItems.concat(items);
+
+		if (response.pagination && response.pagination.next_page) {
+			page = response.pagination.next_page;
+		} else {
+			page = null;
+		}
+	}
+
+	return allItems.slice(0, limit);
+}

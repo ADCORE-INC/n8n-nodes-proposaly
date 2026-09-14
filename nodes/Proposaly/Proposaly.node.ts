@@ -18,6 +18,7 @@ import { createDocumentOperation } from './actions/document/create.operation';
 import { deleteDocumentOperation } from './actions/document/delete.operation';
 import { duplicateDocumentOperation } from './actions/document/duplicate.operation';
 import { findDocumentOperation } from './actions/document/find.operation';
+import { getManyDocumentsOperation } from './actions/document/get-many.operation';
 import { moveDocumentStageOperation } from './actions/document/move.operation';
 import { createDocumentShareLinkOperation } from './actions/document/share-link.operation';
 import { shareDocumentOperation } from './actions/document/share.operation';
@@ -27,16 +28,20 @@ import { addLeadOperation } from './actions/lead/add.operation';
 import { archiveLeadOperation } from './actions/lead/archive.operation';
 import { deleteLeadOperation } from './actions/lead/delete.operation';
 import { findLeadByIdOperation } from './actions/lead/find.operation';
+import { getManyLeadsOperation } from './actions/lead/get-many.operation';
 import { reactivateLeadOperation } from './actions/lead/reactivate.operation';
 import { updateLeadOperation } from './actions/lead/update.operation';
 import { addRecipientOperation } from './actions/recipient/add.operation';
 import { deleteRecipientOperation } from './actions/recipient/delete.operation';
 import { findRecipientOperation } from './actions/recipient/find.operation';
+import { getManyRecipientsOperation } from './actions/recipient/get-many.operation';
 import { getRecipientNotificationSettingsOperation } from './actions/recipient/get-notification.operation';
 import { updateRecipientNotificationOperation } from './actions/recipient/update-notification.operation';
 import { updateRecipientOperation } from './actions/recipient/update.operation';
 import { addWorkspaceOperation } from './actions/workspace/add.operation';
 import { findWorkspaceOperation } from './actions/workspace/find.operation';
+import { getManyWorkspacesOperation } from './actions/workspace/get-many.operation';
+import { getWorkspaceStagesOperation } from './actions/workspace/get-stages.operation';
 import {
 	Fields,
 	Resources,
@@ -45,7 +50,7 @@ import {
 	RecipientOperations,
 	WorkspaceOperations,
 } from './constants';
-import { Document, Lead, Recipient, Workspace } from './types';
+import { Document, Lead, Recipient, Workspace, WorkspaceLabel } from './types';
 
 import { documentFields, documentOperations } from './descriptions/DocumentDescription';
 import { leadFields, leadOperations } from './descriptions/LeadDescription';
@@ -55,7 +60,7 @@ import { proposalyRequest, proposalyRequestAll } from './transport';
 
 async function executeItems(
 	context: IExecuteFunctions,
-	handler: (index: number) => Promise<INodeExecutionData>,
+	handler: (index: number) => Promise<INodeExecutionData | INodeExecutionData[]>,
 ): Promise<INodeExecutionData[][]> {
 	const items = context.getInputData();
 	const returnData: INodeExecutionData[] = [];
@@ -63,7 +68,11 @@ async function executeItems(
 	for (let i = 0; i < items.length; i++) {
 		try {
 			const result = await handler(i);
-			returnData.push(result);
+			if (Array.isArray(result)) {
+				returnData.push(...result);
+			} else {
+				returnData.push(result);
+			}
 		} catch (error) {
 			if (context.continueOnFail()) {
 				returnData.push({ json: { error: (error as Error).message }, pairedItem: { item: i } });
@@ -235,6 +244,32 @@ export class Proposaly implements INodeType {
 					value: recipient.recipient_id,
 				}));
 			},
+			async getWorkspaceLabels(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				const workspaceId = this.getNodeParameter(Fields.WorkspaceId, 0) as string;
+
+				if (!workspaceId) {
+					throw new NodeOperationError(
+						this.getNode(),
+						'The parameter "Workspace ID" has to be set to load labels!',
+					);
+				}
+
+				const response = await proposalyRequest(this, {
+					method: 'GET',
+					path: '/workspaces',
+					qs: {
+						workspace_id: workspaceId,
+					},
+				});
+
+				const workspaces: Workspace[] = Array.isArray(response) ? response : [];
+				const labels: WorkspaceLabel[] = workspaces[0]?.labels ?? [];
+
+				return labels.map((label) => ({
+					name: label.title,
+					value: label.label_key,
+				}));
+			},
 		},
 	};
 
@@ -268,6 +303,10 @@ export class Proposaly implements INodeType {
 			if (operation === LeadOperations.FindById) {
 				return executeItems(this, (i) => findLeadByIdOperation(this, items, i));
 			}
+
+			if (operation === LeadOperations.GetMany) {
+				return executeItems(this, (i) => getManyLeadsOperation(this, i));
+			}
 		}
 
 		// DOCUMENT ACTIONS
@@ -276,9 +315,11 @@ export class Proposaly implements INodeType {
 				return executeItems(this, (i) => {
 					const workspaceId = this.getNodeParameter(Fields.WorkspaceId, i) as string;
 					const title = this.getNodeParameter(Fields.DocumentTitle, i) as string;
+					const labels = this.getNodeParameter(Fields.Labels, i, []) as string[];
 					return createDocumentOperation(this, items, i, {
 						workspaceId,
 						title,
+						labels,
 					});
 				});
 			}
@@ -288,10 +329,12 @@ export class Proposaly implements INodeType {
 					const workspaceId = this.getNodeParameter(Fields.WorkspaceId, i) as string;
 					const title = this.getNodeParameter(Fields.DocumentTitle, i) as string;
 					const leadId = this.getNodeParameter(Fields.LeadId, i) as string;
+					const labels = this.getNodeParameter(Fields.Labels, i, []) as string[];
 					return createDocumentOperation(this, items, i, {
 						workspaceId,
 						title,
 						leadId,
+						labels,
 					});
 				});
 			}
@@ -305,6 +348,12 @@ export class Proposaly implements INodeType {
 					const copyPriceQuote = this.getNodeParameter(Fields.CopyPriceQuote, i, false) as boolean;
 					const copyAddons = this.getNodeParameter(Fields.CopyAddons, i, false) as boolean;
 					const copyAttachments = this.getNodeParameter(Fields.CopyAttachments, i, false) as boolean;
+					const copyTeamMembers = this.getNodeParameter(
+						Fields.CopyTeamMembers,
+						i,
+						false,
+					) as boolean;
+					const labels = this.getNodeParameter(Fields.Labels, i, []) as string[];
 					return createDocumentOperation(this, items, i, {
 						workspaceId,
 						title,
@@ -313,6 +362,8 @@ export class Proposaly implements INodeType {
 						copyPriceQuote,
 						copyAddons,
 						copyAttachments,
+						copyTeamMembers,
+						labels,
 					});
 				});
 			}
@@ -352,6 +403,10 @@ export class Proposaly implements INodeType {
 			if (operation === DocumentOperations.FindById) {
 				return executeItems(this, (i) => findDocumentOperation(this, items, i));
 			}
+
+			if (operation === DocumentOperations.GetMany) {
+				return executeItems(this, (i) => getManyDocumentsOperation(this, i));
+			}
 		}
 
 		// RECIPIENT ACTIONS
@@ -372,6 +427,10 @@ export class Proposaly implements INodeType {
 				return executeItems(this, (i) => findRecipientOperation(this, items, i));
 			}
 
+			if (operation === RecipientOperations.GetMany) {
+				return executeItems(this, (i) => getManyRecipientsOperation(this, i));
+			}
+
 			if (operation === RecipientOperations.UpdateNotificationSettings) {
 				return executeItems(this, (i) => updateRecipientNotificationOperation(this, items, i));
 			}
@@ -389,6 +448,14 @@ export class Proposaly implements INodeType {
 
 			if (operation === WorkspaceOperations.FindById) {
 				return executeItems(this, (i) => findWorkspaceOperation(this, items, i));
+			}
+
+			if (operation === WorkspaceOperations.GetMany) {
+				return executeItems(this, (i) => getManyWorkspacesOperation(this, i));
+			}
+
+			if (operation === WorkspaceOperations.GetStages) {
+				return executeItems(this, (i) => getWorkspaceStagesOperation(this, i));
 			}
 		}
 

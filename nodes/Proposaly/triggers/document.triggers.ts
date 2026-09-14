@@ -1,15 +1,14 @@
 import { IDataObject, INodeExecutionData, IPollFunctions } from 'n8n-workflow';
 import { Document, PaginatedApiResponse, PollData } from '../types';
 import { isRetryableProposalyError, proposalyRequest } from '../transport';
+import { diffPollRecords, resolvePollLimit } from '../shape';
 
-// Helper to reset all document poll data for workspace change
 function resetDocumentPollDataWorkspace(pollData: PollData) {
 	pollData.lastNewDocumentId = undefined;
 	pollData.lastDocumentMovedToNewStageId = undefined;
 	pollData.lastStageId = undefined;
 }
 
-// Helper to reset document poll data for stage change
 function resetDocumentPollDataStageId(pollData: PollData) {
 	pollData.lastDocumentMovedToNewStageId = undefined;
 }
@@ -20,11 +19,10 @@ export async function pollDocumentTrigger(
 ): Promise<INodeExecutionData[] | null> {
 	try {
 		if (event === 'newDocument') {
-			const result = await pollNewDocument(context);
-			return result;
-		} else if (event === 'documentMovedToNewStage') {
-			const result = await pollDocumentMovedToNewStage(context);
-			return result;
+			return await pollNewDocument(context);
+		}
+		if (event === 'documentMovedToNewStage') {
+			return await pollDocumentMovedToNewStage(context);
 		}
 
 		return null;
@@ -39,15 +37,13 @@ export async function pollDocumentTrigger(
 async function pollNewDocument(context: IPollFunctions): Promise<INodeExecutionData[] | null> {
 	const pollData = context.getWorkflowStaticData('node') as PollData;
 	const workspaceId = context.getNodeParameter('workspaceId') as string;
+	const limit = resolvePollLimit(context.getNodeParameter('limit', 0));
 
-	// Reset poll data if workspace changes (affects data source)
 	const currentWorkspaceId = pollData.currentWorkspaceId;
 	if (currentWorkspaceId !== workspaceId) {
 		resetDocumentPollDataWorkspace(pollData);
 		pollData.currentWorkspaceId = workspaceId;
 	}
-
-	const lastNewDocumentId = pollData.lastNewDocumentId;
 
 	let page: number | null = 1;
 	let allDocuments: Document[] = [];
@@ -69,42 +65,32 @@ async function pollNewDocument(context: IPollFunctions): Promise<INodeExecutionD
 			break;
 		}
 
-		if (!lastNewDocumentId) {
-			// First time polling, collect all documents from all pages
-			allDocuments = allDocuments.concat(documents);
-		} else {
-			const lastDocumentIndex = documents.findIndex(
-				(document) => document.document_id === lastNewDocumentId,
-			);
-			if (lastDocumentIndex !== -1) {
-				// Found the last document, collect only new documents before it
-				allDocuments = allDocuments.concat(documents.slice(0, lastDocumentIndex));
-				break;
-			} else {
-				// Last document not found, collect all documents from this page and continue
-				allDocuments = allDocuments.concat(documents);
-			}
-		}
+		allDocuments = allDocuments.concat(documents);
 
-		// Stop when there are no more documents to fetch
 		if (!pagination.next_page) {
 			break;
 		}
 		page = pagination.next_page || null;
 	}
 
-	if (allDocuments.length === 0) {
+	const { emit, nextId } = diffPollRecords({
+		records: allDocuments,
+		lastId: pollData.lastNewDocumentId,
+		getId: (document) => document.document_id,
+		newestFirst: true,
+		mode: context.getMode(),
+		limit,
+	});
+
+	if (nextId) {
+		pollData.lastNewDocumentId = nextId;
+	}
+
+	if (emit.length === 0) {
 		return null;
 	}
 
-	// Update the stored last document_id to the most recent document (first in array)
-	const newLastDocumentId =
-		allDocuments.length > 0 ? allDocuments[0].document_id : lastNewDocumentId;
-	if (newLastDocumentId) {
-		pollData.lastNewDocumentId = newLastDocumentId;
-	}
-
-	return allDocuments.map((document) => ({
+	return emit.map((document) => ({
 		json: document as unknown as IDataObject,
 	}));
 }
@@ -115,10 +101,10 @@ async function pollDocumentMovedToNewStage(
 	const pollData = context.getWorkflowStaticData('node') as PollData;
 	const workspaceId = context.getNodeParameter('workspaceId') as string;
 	const stageId = context.getNodeParameter('stageId') as string;
+	const limit = resolvePollLimit(context.getNodeParameter('limit', 0));
 	const currentWorkspaceId = pollData.currentWorkspaceId;
 	const currentStageId = pollData.lastStageId;
 
-	// Reset poll data if workspace or stage changes (affects data source)
 	if (currentWorkspaceId !== workspaceId) {
 		resetDocumentPollDataWorkspace(pollData);
 		pollData.currentWorkspaceId = workspaceId;
@@ -127,8 +113,6 @@ async function pollDocumentMovedToNewStage(
 		resetDocumentPollDataStageId(pollData);
 		pollData.lastStageId = stageId;
 	}
-
-	const lastDocumentMovedToNewStageId = pollData.lastDocumentMovedToNewStageId;
 
 	let page: number | null = 1;
 	let allDocuments: Document[] = [];
@@ -152,45 +136,33 @@ async function pollDocumentMovedToNewStage(
 			break;
 		}
 
-		// Sort documents by status_changed_date descending (newest first)
 		documents.sort((a, b) => b.status_changed_date - a.status_changed_date);
+		allDocuments = allDocuments.concat(documents);
 
-		if (!lastDocumentMovedToNewStageId) {
-			// First time polling, collect all documents from all pages
-			allDocuments = allDocuments.concat(documents);
-		} else {
-			const lastDocumentIndex = documents.findIndex(
-				(document) => document.document_id === lastDocumentMovedToNewStageId,
-			);
-			if (lastDocumentIndex !== -1) {
-				// Found the last document, collect only new documents before it
-				allDocuments = allDocuments.concat(documents.slice(0, lastDocumentIndex));
-				break;
-			} else {
-				// Last document not found, collect all documents from this page and continue
-				allDocuments = allDocuments.concat(documents);
-			}
-		}
-
-		// Stop when there are no more documents to fetch
 		if (!pagination.next_page) {
 			break;
 		}
 		page = pagination.next_page || null;
 	}
 
-	if (allDocuments.length === 0) {
+	const { emit, nextId } = diffPollRecords({
+		records: allDocuments,
+		lastId: pollData.lastDocumentMovedToNewStageId,
+		getId: (document) => document.document_id,
+		newestFirst: true,
+		mode: context.getMode(),
+		limit,
+	});
+
+	if (nextId) {
+		pollData.lastDocumentMovedToNewStageId = nextId;
+	}
+
+	if (emit.length === 0) {
 		return null;
 	}
 
-	// Update the stored last document_id to the most recent document (first in array)
-	const newLastDocumentMovedToNewStageId =
-		allDocuments.length > 0 ? allDocuments[0].document_id : lastDocumentMovedToNewStageId;
-	if (newLastDocumentMovedToNewStageId) {
-		pollData.lastDocumentMovedToNewStageId = newLastDocumentMovedToNewStageId;
-	}
-
-	return allDocuments.map((document) => ({
+	return emit.map((document) => ({
 		json: document as unknown as IDataObject,
 	}));
 }

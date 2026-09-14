@@ -12,6 +12,7 @@ export const LeadOperations = {
 	Create: 'createLead',
 	Delete: 'deleteLead',
 	FindById: 'findLeadById',
+	GetMany: 'getMany',
 	Reactivate: 'reactivateLead',
 	Update: 'updateLead',
 } as const;
@@ -24,6 +25,7 @@ export const DocumentOperations = {
 	Delete: 'deleteDocument',
 	Duplicate: 'duplicateDocument',
 	FindById: 'findDocumentById',
+	GetMany: 'getMany',
 	MoveStage: 'moveDocumentStage',
 	Share: 'shareDocument',
 	TransferOwnership: 'transferDocumentOwnership',
@@ -34,6 +36,7 @@ export const RecipientOperations = {
 	Add: 'addRecipient',
 	Delete: 'deleteRecipient',
 	Find: 'findRecipient',
+	GetMany: 'getMany',
 	Update: 'updateRecipient',
 	GetNotificationSettings: 'getRecipientNotificationSettings',
 	UpdateNotificationSettings: 'updateRecipientNotificationSettings',
@@ -42,6 +45,8 @@ export const RecipientOperations = {
 export const WorkspaceOperations = {
 	Add: 'addWorkspace',
 	FindById: 'findWorkspaceById',
+	GetMany: 'getMany',
+	GetStages: 'getStages',
 } as const;
 
 // === FIELD IDS ===
@@ -90,7 +95,13 @@ export const Fields = {
 	CopyPriceQuote: 'copyPriceQuote',
 	CopyAddons: 'copyAddons',
 	CopyAttachments: 'copyAttachments',
+	CopyTeamMembers: 'copyTeamMembers',
+	Labels: 'labels',
 	Recipients: 'recipients',
+	ReturnAll: 'returnAll',
+	Limit: 'limit',
+	LeadStatus: 'leadStatus',
+	IncludeBlocked: 'includeBlocked',
 
 	// Recipient fields
 	FirstName: 'firstName',
