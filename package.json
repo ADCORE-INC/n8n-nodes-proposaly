@@ -28,6 +28,7 @@
 		"dev": "n8n-node dev",
 		"lint": "n8n-node lint",
 		"lint:fix": "n8n-node lint --fix",
+		"test": "tsc -p tsconfig.test.json && node --test .tmp-test/test/*.test.js",
 		"release": "n8n-node release",
 		"prepublishOnly": "n8n-node prerelease"
 	},
@@ -47,6 +48,7 @@
 	},
 	"devDependencies": {
 		"@n8n/node-cli": "*",
+		"@types/node": "^24.13.4",
 		"eslint": "9.32.0",
 		"prettier": "3.6.2",
 		"release-it": "^19.0.4",
