@@ -192,13 +192,14 @@ return {
 
 See [CHANGELOG.md](CHANGELOG.md) for a detailed version history.
 
-### Unreleased
+### 0.2.0
 
 - **Get Many** for leads, documents, recipients, and workspaces, plus **Get Workspace Stages**
 - Lead outputs flattened to match Zapier/Make (`client_name`, first-recipient email/name/phone)
 - Polling triggers seed on first production poll instead of replaying history
 - Optional document labels and `copy_team_members` on create/duplicate
 - Credential **Environment** (Test vs Production); URLs live in `nodes/Proposaly/environments.ts`
+- **Note** and **Card** resources, nested notes, Include Notes toggle, and matching triggers
 
 ### 0.1.0
 
