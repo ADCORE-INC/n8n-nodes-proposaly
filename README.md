@@ -192,6 +192,10 @@ return {
 
 See [CHANGELOG.md](CHANGELOG.md) for a detailed version history.
 
+### 0.2.1
+
+- Same 0.2.0 node features; npm publish now uses Trusted Publishing (OIDC) from GitHub Actions
+
 ### 0.2.0
 
 - **Get Many** for leads, documents, recipients, and workspaces, plus **Get Workspace Stages**
