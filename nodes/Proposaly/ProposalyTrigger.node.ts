@@ -12,6 +12,9 @@ import { Document, Stage, Workspace } from './types';
 import { pollDocumentTrigger } from './triggers/document.triggers';
 import { pollWorkspaceTrigger } from './triggers/workspace.triggers';
 import { pollRecipientTrigger } from './triggers/recipient.triggers';
+import { pollNoteTrigger } from './triggers/note.triggers';
+import { pollCardTrigger } from './triggers/card.triggers';
+import { listNoteParentOptions } from './notes';
 import { proposalyRequest, proposalyRequestAll } from './transport';
 
 export class ProposalyTrigger implements INodeType {
@@ -21,7 +24,7 @@ export class ProposalyTrigger implements INodeType {
 		icon: 'file:proposaly.svg',
 		group: ['trigger'],
 		version: 1,
-		description: 'Starts a workflow when a new event occurs on Proposaly',
+		description: 'Unify presentations, proposals, agreements, and payments in Proposaly',
 		subtitle: '={{$parameter["event"]}}',
 		defaults: {
 			name: 'Proposaly Trigger',
@@ -48,6 +51,10 @@ export class ProposalyTrigger implements INodeType {
 						value: 'archivedLead',
 					},
 					{
+						name: 'Card Moved to New Stage',
+						value: 'cardMovedToNewStage',
+					},
+					{
 						name: 'Deleted Lead',
 						value: 'deletedLead',
 					},
@@ -56,12 +63,20 @@ export class ProposalyTrigger implements INodeType {
 						value: 'documentMovedToNewStage',
 					},
 					{
+						name: 'New Card',
+						value: 'newCard',
+					},
+					{
 						name: 'New Document',
 						value: 'newDocument',
 					},
 					{
 						name: 'New Lead',
 						value: 'newLead',
+					},
+					{
+						name: 'New Note',
+						value: 'newNote',
 					},
 					{
 						name: 'New Recipient',
@@ -83,7 +98,7 @@ export class ProposalyTrigger implements INodeType {
 				},
 				displayOptions: {
 					hide: {
-						event: ['newWorkspace'],
+						event: ['newWorkspace', 'newCard', 'cardMovedToNewStage', 'newNote'],
 					},
 				},
 				default: '',
@@ -92,12 +107,88 @@ export class ProposalyTrigger implements INodeType {
 					'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 			},
 			{
+				displayName: 'Card Workspace Name or ID',
+				name: 'workspaceId',
+				type: 'options',
+				typeOptions: {
+					loadOptionsMethod: 'getCardWorkspaces',
+				},
+				displayOptions: {
+					show: {
+						event: ['newCard', 'cardMovedToNewStage'],
+					},
+				},
+				default: '',
+				required: true,
+				description:
+					'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+			},
+			{
+				displayName: 'Workspace Name or ID',
+				name: 'workspaceId',
+				type: 'options',
+				typeOptions: {
+					loadOptionsMethod: 'getWorkspaces',
+				},
+				displayOptions: {
+					show: {
+						event: ['newNote'],
+					},
+				},
+				default: '',
+				description:
+					'Optional. Used to list parents below. Card workspaces load documents only; other workspaces load documents and leads. Skip this if you map an ID. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+			},
+			{
+				// API values are IDs; the list only shows names as labels.
+				// eslint-disable-next-line n8n-nodes-base/node-param-display-name-wrong-for-dynamic-options
+				displayName: 'Document, Card, or Lead ID',
+				name: 'parentId',
+				type: 'options',
+				typeOptions: {
+					loadOptionsMethod: 'getNoteParents',
+					loadOptionsDependsOn: ['workspaceId'],
+				},
+				required: true,
+				displayOptions: {
+					show: {
+						event: ['newNote'],
+					},
+				},
+				default: '',
+				description:
+					'Map an ID from a previous step, or pick one after selecting a workspace. Names are not accepted. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+			},
+			{
+				displayName: 'Source',
+				name: 'noteSource',
+				type: 'options',
+				options: [
+					{ name: 'Agent', value: 'agent' },
+					{ name: 'All', value: '' },
+					{ name: 'Call', value: 'call' },
+					{ name: 'Email', value: 'email' },
+					{ name: 'Meeting', value: 'meeting' },
+					{ name: 'Note', value: 'note' },
+					{ name: 'Order Fields', value: 'order_fields' },
+					{ name: 'Slack', value: 'slack' },
+					{ name: 'Zoom', value: 'zoom' },
+				],
+				default: '',
+				displayOptions: {
+					show: {
+						event: ['newNote'],
+					},
+				},
+				description: 'Only watch notes from this source. Leave empty for all sources.',
+			},
+			{
 				displayName: 'Stage Name or ID',
 				name: 'stageId',
 				type: 'options',
 				displayOptions: {
 					show: {
-						event: ['documentMovedToNewStage'],
+						event: ['documentMovedToNewStage', 'cardMovedToNewStage'],
 					},
 				},
 				typeOptions: {
@@ -126,6 +217,27 @@ export class ProposalyTrigger implements INodeType {
 				required: true,
 				description:
 					'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+			},
+			{
+				displayName: 'Include Notes',
+				name: 'includeNotes',
+				type: 'boolean',
+				default: true,
+				displayOptions: {
+					show: {
+						event: [
+							'archivedLead',
+							'cardMovedToNewStage',
+							'deletedLead',
+							'documentMovedToNewStage',
+							'newCard',
+							'newDocument',
+							'newLead',
+						],
+					},
+				},
+				description:
+					'Whether to fetch nested notes. Turn off to save API credits; each record can use extra API calls.',
 			},
 			{
 				displayName: 'Limit',
@@ -200,6 +312,23 @@ export class ProposalyTrigger implements INodeType {
 					value: document.document_id,
 				}));
 			},
+			async getCardWorkspaces(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				const workspaces = await proposalyRequest(this, {
+					method: 'GET',
+					path: '/workspaces',
+				});
+				const items: Workspace[] = Array.isArray(workspaces) ? workspaces : [];
+				return items
+					.filter((workspace) => workspace.workspace_type === 'card')
+					.map((workspace) => ({
+						name: workspace.workspace_name,
+						value: workspace.workspace_id,
+					}));
+			},
+			async getNoteParents(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				const workspaceId = (this.getNodeParameter('workspaceId') as string) || '';
+				return listNoteParentOptions(this, workspaceId);
+			},
 		},
 	};
 
@@ -227,6 +356,17 @@ export class ProposalyTrigger implements INodeType {
 
 			case 'newRecipient': {
 				const result = await pollRecipientTrigger(this, event);
+				return result ? [result] : null;
+			}
+
+			case 'newNote': {
+				const result = await pollNoteTrigger(this);
+				return result ? [result] : null;
+			}
+
+			case 'newCard':
+			case 'cardMovedToNewStage': {
+				const result = await pollCardTrigger(this, event);
 				return result ? [result] : null;
 			}
 

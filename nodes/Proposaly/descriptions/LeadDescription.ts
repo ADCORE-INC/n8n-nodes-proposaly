@@ -669,4 +669,25 @@ export const leadFields: INodeProperties[] = [
 		},
 		description: 'Max number of results to return',
 	},
+	{
+		displayName: 'Include Notes',
+		name: Fields.IncludeNotes,
+		type: 'boolean',
+		default: true,
+		displayOptions: {
+			show: {
+				resource: [Resources.Lead],
+				operation: [
+					LeadOperations.Archive,
+					LeadOperations.Create,
+					LeadOperations.FindById,
+					LeadOperations.GetMany,
+					LeadOperations.Reactivate,
+					LeadOperations.Update,
+				],
+			},
+		},
+		description:
+			'Whether to fetch nested notes. Turn off to save API credits; each record can use extra API calls.',
+	},
 ];

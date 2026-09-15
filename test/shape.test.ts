@@ -1,7 +1,7 @@
 /* eslint-disable @n8n/community-nodes/no-restricted-imports */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { diffPollRecords, flattenLead, resolvePollLimit } from '../nodes/Proposaly/shape';
+import { diffPollRecords, flattenCard, flattenLead, resolvePollLimit } from '../nodes/Proposaly/shape';
 
 test('flattenLead lifts the first recipient and aliases client_name', () => {
 	const flattened = flattenLead({
@@ -45,6 +45,47 @@ test('flattenLead keeps recipients and uses client_name when company is missing'
 	assert.equal(flattened.company, 'Jamie');
 	assert.equal(flattened.email, null);
 	assert.equal(flattened.last_name, 'Jamie');
+});
+
+test('flattenCard lifts lead metadata and the first recipient', () => {
+	const flattened = flattenCard({
+		document_id: 'doc-1',
+		workspace_id: 'ws-card',
+		document_title: 'Acme card',
+		document_type: 'card',
+		stage_id: 'Lead',
+		stage_label: 'Lead',
+		date_created: 1,
+		status_changed_date: 2,
+		is_template: false,
+		is_master_template: false,
+		owner_email: 'owner@example.com',
+		lead_metadata: {
+			client_name: 'Acme',
+			website: 'https://acme.test',
+			card_type: 'lead',
+			recipients: [
+				{
+					first_name: 'Ada',
+					last_name: 'Lovelace',
+					email: 'ada@example.com',
+					phone_number: '+1',
+					access_level: 'viewer',
+					recipient_id: 'r1',
+					document_id: 'doc-1',
+					status: 'active',
+					blocked: false,
+				},
+			],
+		},
+	});
+
+	assert.equal(flattened.id, 'doc-1');
+	assert.equal(flattened.client_name, 'Acme');
+	assert.equal(flattened.card_type, 'lead');
+	assert.equal(flattened.website, 'https://acme.test');
+	assert.equal(flattened.email, 'ada@example.com');
+	assert.equal(flattened.recipients?.length, 1);
 });
 
 test('first production poll seeds the cursor and emits nothing', () => {

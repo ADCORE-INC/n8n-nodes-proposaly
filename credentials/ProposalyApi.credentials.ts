@@ -5,6 +5,7 @@ import type {
 	Icon,
 	INodeProperties,
 } from 'n8n-workflow';
+import { ProposalyApiUrls } from '../nodes/Proposaly/environments';
 
 export class ProposalyApi implements ICredentialType {
 	name = 'proposalyApi';
@@ -25,11 +26,22 @@ export class ProposalyApi implements ICredentialType {
 			default: '',
 		},
 		{
-			displayName: 'Base URL',
+			displayName: 'Environment',
 			name: 'url',
-			type: 'string',
-			default: 'https://api.proposaly.io/v2/public-api',
-			description: 'Override the default base URL for the API',
+			type: 'options',
+			options: [
+				{
+					name: 'Production',
+					value: ProposalyApiUrls.production,
+				},
+				{
+					name: 'Test',
+					value: ProposalyApiUrls.test,
+				},
+			],
+			default: ProposalyApiUrls.production,
+			description:
+				'Proposaly API environment. Test uses test-api.proposaly.io; production uses api.proposaly.io.',
 		},
 	];
 

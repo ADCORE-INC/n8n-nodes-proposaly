@@ -8,6 +8,11 @@ export type PollData = {
 	currentWorkspaceId?: string;
 	lastNewWorkspaceId?: string;
 	lastNewRecipientId?: string;
+	lastNewNoteId?: string;
+	lastNewCardId?: string;
+	lastCardMovedToNewStageId?: string;
+	lastCardStageId?: string;
+	currentParentId?: string;
 };
 
 export type LeadType = 'individual' | 'business';
@@ -40,16 +45,50 @@ export enum ProposalBoardType {
 	Payment = 'payment',
 }
 
+export type LeadMetadata = {
+	client_name?: string | null;
+	website?: string | null;
+	street_address?: string | null;
+	apartment?: string | null;
+	country?: string | null;
+	state?: string | null;
+	city?: string | null;
+	zip_code?: string | null;
+	lead_source?: string | null;
+	lead_source_other?: string | null;
+	comment?: string | null;
+	owner_email?: string | null;
+	card_type?: string | null;
+	recipients?: Recipient[] | null;
+};
+
 export type Document = {
 	workspace_id: string;
 	document_id: string;
 	document_title: string;
-	document_type: ProposalBoardType;
+	document_type: ProposalBoardType | string;
 	date_created: number;
 	status_changed_date: number;
 	is_template: boolean;
 	is_master_template: boolean;
 	owner_email: string;
+	stage_id?: string;
+	stage_label?: string;
+	card_type?: string | null;
+	lead_metadata?: LeadMetadata;
+};
+
+export type Note = {
+	id: string;
+	document_id?: string;
+	document_type?: string;
+	workspace_id?: string;
+	title?: string | null;
+	body?: string | null;
+	source?: string;
+	author_email?: string | null;
+	created_at?: number;
+	updated_at?: number;
 };
 
 export type PaginatedApiResponse<T> = {

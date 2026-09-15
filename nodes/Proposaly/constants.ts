@@ -1,7 +1,9 @@
 // === RESOURCES ===
 export const Resources = {
-	Lead: 'lead',
+	Card: 'card',
 	Document: 'document',
+	Lead: 'lead',
+	Note: 'note',
 	Recipient: 'recipient',
 	Workspace: 'workspace',
 } as const;
@@ -47,6 +49,19 @@ export const WorkspaceOperations = {
 	FindById: 'findWorkspaceById',
 	GetMany: 'getMany',
 	GetStages: 'getStages',
+} as const;
+
+export const NoteOperations = {
+	Create: 'createNote',
+	Delete: 'deleteNote',
+	FindById: 'findNoteById',
+	GetMany: 'getMany',
+	Update: 'updateNote',
+} as const;
+
+export const CardOperations = {
+	FindById: 'findCardById',
+	GetMany: 'getMany',
 } as const;
 
 // === FIELD IDS ===
@@ -130,6 +145,16 @@ export const Fields = {
 
 	// Additional fields collection
 	AdditionalFields: 'additionalFields',
+
+	// Note / card fields
+	ParentId: 'parentId',
+	NoteId: 'noteId',
+	NoteTitle: 'noteTitle',
+	NoteBody: 'noteBody',
+	NoteSource: 'noteSource',
+	AuthorEmail: 'authorEmail',
+	NoteSearch: 'noteSearch',
+	IncludeNotes: 'includeNotes',
 } as const;
 
 // Nested additional fields
@@ -148,5 +173,7 @@ export type LeadOperation = (typeof LeadOperations)[keyof typeof LeadOperations]
 export type DocumentOperation = (typeof DocumentOperations)[keyof typeof DocumentOperations];
 export type RecipientOperation = (typeof RecipientOperations)[keyof typeof RecipientOperations];
 export type WorkspaceOperation = (typeof WorkspaceOperations)[keyof typeof WorkspaceOperations];
+export type NoteOperation = (typeof NoteOperations)[keyof typeof NoteOperations];
+export type CardOperation = (typeof CardOperations)[keyof typeof CardOperations];
 export type FieldId = (typeof Fields)[keyof typeof Fields];
 export type AdditionalFieldKey = (typeof AdditionalFieldKeys)[keyof typeof AdditionalFieldKeys];

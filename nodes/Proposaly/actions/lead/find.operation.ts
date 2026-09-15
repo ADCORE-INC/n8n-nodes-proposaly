@@ -2,7 +2,7 @@ import { INodeExecutionData, IExecuteFunctions } from 'n8n-workflow';
 import { Lead, PaginatedApiResponse } from '../../types';
 import { proposalyRequest } from '../../transport';
 import { Fields } from '../../constants';
-import { leadExecutionData } from '../../shape';
+import { leadItemWithNotes } from '../../notes';
 
 export async function findLeadByIdOperation(
 	context: IExecuteFunctions,
@@ -20,8 +20,8 @@ export async function findLeadByIdOperation(
 	});
 
 	if (responseData && responseData.entities.length > 0) {
-		return leadExecutionData(responseData.entities[0], itemIndex);
+		return leadItemWithNotes(context, responseData.entities[0], itemIndex);
 	}
 
-	return leadExecutionData({}, itemIndex);
+	return leadItemWithNotes(context, {}, itemIndex);
 }

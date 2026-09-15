@@ -472,7 +472,10 @@ describe('Conditional payloads and empty results', () => {
 			],
 		});
 		const all = await getManyLeadsOperation(allPages.context, 0);
-		assert.equal(allPages.captured.length, 2);
+		assert.equal(
+			allPages.captured.filter((request) => !(request.url ?? '').includes('/notes')).length,
+			2,
+		);
 		assert.equal(all.length, 2);
 
 		const limited = createNodeContext({

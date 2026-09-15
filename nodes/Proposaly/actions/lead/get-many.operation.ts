@@ -2,6 +2,7 @@ import { IDataObject, IExecuteFunctions, INodeExecutionData } from 'n8n-workflow
 import { compact } from '../../utils';
 import { Fields } from '../../constants';
 import { flattenLead, toItems } from '../../shape';
+import { attachNotesToRecords, includeNotesForItem } from '../../notes';
 import { proposalyRequestLimited } from '../../transport';
 import { Lead } from '../../types';
 
@@ -26,5 +27,12 @@ export async function getManyLeadsOperation(
 		limit,
 	);
 
-	return toItems(leads.map(flattenLead), itemIndex);
+	const flattened = leads.map(flattenLead);
+	const withNotes = await attachNotesToRecords(
+		context,
+		flattened,
+		(lead) => lead.lead_id || lead.id,
+		includeNotesForItem(context, itemIndex),
+	);
+	return toItems(withNotes, itemIndex);
 }

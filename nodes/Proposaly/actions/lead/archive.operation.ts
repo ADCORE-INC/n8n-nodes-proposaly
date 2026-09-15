@@ -1,7 +1,7 @@
 import { INodeExecutionData, IExecuteFunctions } from 'n8n-workflow';
 import { proposalyRequest } from '../../transport';
 import { Fields } from '../../constants';
-import { leadExecutionData } from '../../shape';
+import { leadItemWithNotes } from '../../notes';
 
 export async function archiveLeadOperation(
 	context: IExecuteFunctions,
@@ -18,5 +18,5 @@ export async function archiveLeadOperation(
 		},
 	});
 
-	return leadExecutionData(responseData, itemIndex);
+	return leadItemWithNotes(context, responseData, itemIndex);
 }

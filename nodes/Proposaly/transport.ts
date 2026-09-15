@@ -8,6 +8,7 @@ import type {
 	JsonObject,
 } from 'n8n-workflow';
 import { NodeApiError, NodeOperationError } from 'n8n-workflow';
+import { resolveProposalyApiUrl } from './environments';
 import { PaginatedApiResponse } from './types';
 
 export type ProposalyContext =
@@ -149,7 +150,7 @@ export async function proposalyRequest<T = IDataObject>(
 	options: ProposalyRequestOptions,
 ): Promise<T> {
 	const credentials = await context.getCredentials('proposalyApi');
-	const baseUrl = credentials.url as string;
+	const baseUrl = resolveProposalyApiUrl(credentials);
 
 	// Destructure path separately to avoid passing it to IHttpRequestOptions
 	const { path, ...restOptions } = options;

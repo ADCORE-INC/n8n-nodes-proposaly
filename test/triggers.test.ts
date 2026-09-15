@@ -5,6 +5,8 @@ import { pollDocumentTrigger } from '../nodes/Proposaly/triggers/document.trigge
 import { pollLeadTrigger } from '../nodes/Proposaly/triggers/lead.triggers';
 import { pollRecipientTrigger } from '../nodes/Proposaly/triggers/recipient.triggers';
 import { pollWorkspaceTrigger } from '../nodes/Proposaly/triggers/workspace.triggers';
+import { pollCardTrigger } from '../nodes/Proposaly/triggers/card.triggers';
+import { pollNoteTrigger } from '../nodes/Proposaly/triggers/note.triggers';
 import { createNodeContext } from './helpers/context';
 
 const lead = (id: string, dateCreated: number) => ({
@@ -145,5 +147,99 @@ describe('Proposaly Trigger', () => {
 		assert.equal(result?.length, 1);
 		assert.equal(result?.[0].json.document_id, 'doc-2');
 		assert.equal(pollData.lastDocumentMovedToNewStageId, 'doc-2');
+	});
+
+	it('nests notes on emitted leads', async () => {
+		const pollData: Record<string, unknown> = {
+			lastAddedLeadId: 'l1',
+			currentWorkspaceId: 'ws-1',
+		};
+		const { context } = createNodeContext({
+			params: { workspaceId: 'ws-1', limit: 50 },
+			mode: 'trigger',
+			pollData,
+			responses: [
+				{ entities: [lead('l2', 200), lead('l1', 100)], pagination: {} },
+				{ entities: [{ id: 'n1', title: 'Follow-up' }], pagination: {} },
+			],
+		});
+
+		const result = await pollLeadTrigger(context, 'newLead');
+		assert.equal(result?.[0].json.lead_id, 'l2');
+		assert.deepEqual(result?.[0].json.notes, [{ id: 'n1', title: 'Follow-up' }]);
+	});
+
+	it('seeds new notes and later emits notes newer than the cursor', async () => {
+		const pollData: Record<string, unknown> = {};
+		const first = createNodeContext({
+			params: { parentId: 'doc-1', noteSource: '', limit: 50 },
+			mode: 'trigger',
+			pollData,
+			responses: [{ entities: [{ id: 'n1', title: 'Old' }], pagination: {} }],
+		});
+		assert.equal(await pollNoteTrigger(first.context), null);
+		assert.equal(pollData.lastNewNoteId, 'n1');
+
+		const second = createNodeContext({
+			params: { parentId: 'doc-1', noteSource: '', limit: 50 },
+			mode: 'trigger',
+			pollData,
+			responses: [
+				{ entities: [{ id: 'n2', title: 'New' }, { id: 'n1', title: 'Old' }], pagination: {} },
+			],
+		});
+		const emitted = await pollNoteTrigger(second.context);
+		assert.equal(emitted?.length, 1);
+		assert.equal(emitted?.[0].json.id, 'n2');
+	});
+
+	it('filters archived cards on new card and flattens lead metadata', async () => {
+		const pollData: Record<string, unknown> = { lastNewCardId: 'doc-1', currentWorkspaceId: 'ws-card' };
+		const { context } = createNodeContext({
+			params: { workspaceId: 'ws-card', limit: 50 },
+			mode: 'trigger',
+			pollData,
+			responses: [
+				{
+					entities: [
+						{
+							document_id: 'doc-2',
+							document_title: 'Won',
+							stage_id: 'Lead',
+							lead_metadata: { client_name: 'Acme', recipients: [{ email: 'ada@example.com' }] },
+						},
+						{ document_id: 'doc-archived', stage_id: 'Archived' },
+						{ document_id: 'doc-1', stage_id: 'Lead' },
+					],
+					pagination: {},
+				},
+				{ entities: [{ id: 'n1', title: 'Kickoff' }], pagination: {} },
+			],
+		});
+
+		const result = await pollCardTrigger(context, 'newCard');
+		assert.equal(result?.length, 1);
+		assert.equal(result?.[0].json.document_id, 'doc-2');
+		assert.equal(result?.[0].json.client_name, 'Acme');
+		assert.equal(result?.[0].json.email, 'ada@example.com');
+		assert.equal((result?.[0].json.notes as Array<{ id: string }>)[0].id, 'n1');
+	});
+
+	it('omits nested notes on leads when Include Notes is off', async () => {
+		const pollData: Record<string, unknown> = {
+			lastAddedLeadId: 'l1',
+			currentWorkspaceId: 'ws-1',
+		};
+		const { context, captured } = createNodeContext({
+			params: { workspaceId: 'ws-1', includeNotes: false, limit: 50 },
+			mode: 'trigger',
+			pollData,
+			responses: [{ entities: [lead('l2', 200), lead('l1', 100)], pagination: {} }],
+		});
+
+		const result = await pollLeadTrigger(context, 'newLead');
+		assert.equal(result?.[0].json.lead_id, 'l2');
+		assert.equal('notes' in (result?.[0].json ?? {}), false);
+		assert.equal(captured.filter((request) => (request.url ?? '').includes('/notes')).length, 0);
 	});
 });

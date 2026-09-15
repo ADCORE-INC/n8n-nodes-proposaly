@@ -1,7 +1,7 @@
 {
 	"name": "n8n-nodes-proposaly",
 	"version": "0.1.6",
-	"description": "n8n nodes for Proposaly",
+	"description": "Unify presentations, proposals, agreements, and payments in Proposaly",
 	"license": "MIT",
 	"homepage": "https://github.com/ADCORE-INC/n8n.proposaly.io",
 	"bugs": {
@@ -25,7 +25,7 @@
 	"scripts": {
 		"build": "n8n-node build",
 		"build:watch": "tsc --watch",
-		"dev": "n8n-node dev",
+		"dev": "node scripts/dev.cjs",
 		"lint": "n8n-node lint",
 		"lint:fix": "n8n-node lint --fix",
 		"test": "tsc -p tsconfig.test.json && node --test .tmp-test/test/*.test.js",

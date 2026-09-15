@@ -2,6 +2,7 @@ import { IDataObject, INodeExecutionData, IPollFunctions } from 'n8n-workflow';
 import { Document, PaginatedApiResponse, PollData } from '../types';
 import { isRetryableProposalyError, proposalyRequest } from '../transport';
 import { diffPollRecords, resolvePollLimit } from '../shape';
+import { attachNotesToRecords, includeNotesForPoll } from '../notes';
 
 function resetDocumentPollDataWorkspace(pollData: PollData) {
 	pollData.lastNewDocumentId = undefined;
@@ -90,7 +91,14 @@ async function pollNewDocument(context: IPollFunctions): Promise<INodeExecutionD
 		return null;
 	}
 
-	return emit.map((document) => ({
+	const withNotes = await attachNotesToRecords(
+		context,
+		emit,
+		(document) => document.document_id,
+		includeNotesForPoll(context),
+	);
+
+	return withNotes.map((document) => ({
 		json: document as unknown as IDataObject,
 	}));
 }
@@ -162,7 +170,14 @@ async function pollDocumentMovedToNewStage(
 		return null;
 	}
 
-	return emit.map((document) => ({
+	const withNotes = await attachNotesToRecords(
+		context,
+		emit,
+		(document) => document.document_id,
+		includeNotesForPoll(context),
+	);
+
+	return withNotes.map((document) => ({
 		json: document as unknown as IDataObject,
 	}));
 }

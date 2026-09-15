@@ -1,10 +1,10 @@
-import { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
-import { Document, PaginatedApiResponse } from '../../types';
-import { proposalyRequest } from '../../transport';
+import { IDataObject, IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { Fields } from '../../constants';
-import { documentItemWithNotes } from '../../notes';
+import { cardItemWithNotes } from '../../notes';
+import { proposalyRequest } from '../../transport';
+import { Document, PaginatedApiResponse } from '../../types';
 
-export async function findDocumentOperation(
+export async function findCardOperation(
 	context: IExecuteFunctions,
 	items: INodeExecutionData[],
 	itemIndex: number,
@@ -20,8 +20,8 @@ export async function findDocumentOperation(
 	});
 
 	if (responseData && responseData.entities.length > 0) {
-		return documentItemWithNotes(context, responseData.entities[0], itemIndex);
+		return cardItemWithNotes(context, responseData.entities[0], itemIndex);
 	}
 
-	return { json: { message: 'Document not found' }, pairedItem: { item: itemIndex } };
+	return { json: { message: 'Card not found' } as IDataObject, pairedItem: { item: itemIndex } };
 }

@@ -2,6 +2,7 @@ import type { IDataObject, INodeExecutionData, IPollFunctions } from 'n8n-workfl
 import { Lead, PaginatedApiResponse, PollData } from '../types';
 import { isRetryableProposalyError, proposalyRequest } from '../transport';
 import { diffPollRecords, flattenLead, resolvePollLimit } from '../shape';
+import { attachNotesToRecords, includeNotesForPoll } from '../notes';
 
 function resetLeadPollData(pollData: PollData) {
 	pollData.lastAddedLeadId = undefined;
@@ -91,8 +92,15 @@ export async function pollLeadTrigger(
 			return null;
 		}
 
-		return emit.map((lead) => ({
-			json: flattenLead(lead) as IDataObject,
+		const withNotes = await attachNotesToRecords(
+			context,
+			emit.map((lead) => flattenLead(lead)),
+			(lead) => lead.lead_id || lead.id,
+			includeNotesForPoll(context),
+		);
+
+		return withNotes.map((lead) => ({
+			json: lead as IDataObject,
 		}));
 	} catch (error) {
 		if (isRetryableProposalyError(error)) {

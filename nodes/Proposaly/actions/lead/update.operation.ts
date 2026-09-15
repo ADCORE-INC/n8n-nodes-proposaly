@@ -2,7 +2,7 @@ import { IDataObject, INodeExecutionData, IExecuteFunctions } from 'n8n-workflow
 import { compact } from '../../utils';
 import { proposalyRequest } from '../../transport';
 import { Fields } from '../../constants';
-import { leadExecutionData } from '../../shape';
+import { leadItemWithNotes } from '../../notes';
 
 export async function updateLeadOperation(
 	context: IExecuteFunctions,
@@ -55,5 +55,5 @@ export async function updateLeadOperation(
 		body: data,
 	});
 
-	return leadExecutionData(responseData, itemIndex);
+	return leadItemWithNotes(context, responseData, itemIndex);
 }

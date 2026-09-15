@@ -1,5 +1,5 @@
 import type { IDataObject, INodeExecutionData } from 'n8n-workflow';
-import type { Lead, Recipient } from './types';
+import type { Document, Lead, LeadMetadata, Recipient } from './types';
 
 export type LeadLike = Partial<Lead> & {
 	client_name?: string | null;
@@ -56,6 +56,75 @@ export function leadExecutionData(lead: unknown, itemIndex: number): INodeExecut
 	return {
 		json: flattenLead(lead as LeadLike) as IDataObject,
 		pairedItem: { item: itemIndex },
+	};
+}
+
+export type FlattenedCard = {
+	document_id?: string;
+	workspace_id?: string;
+	document_title?: string;
+	document_type?: string;
+	stage_id?: string;
+	stage_label?: string;
+	card_type: string | null;
+	client_name: string | null;
+	website: string | null;
+	street_address: string | null;
+	apartment: string | null;
+	country: string | null;
+	state: string | null;
+	city: string | null;
+	zip_code: string | null;
+	lead_source: string | null;
+	lead_source_other: string | null;
+	comment: string | null;
+	owner_email: string | null;
+	date_created?: number;
+	status_changed_date?: number;
+	recipients: Recipient[] | null | undefined;
+	lead_metadata: LeadMetadata;
+	id?: string;
+	email: string | null;
+	first_name: string | null;
+	last_name: string | null;
+	phone_number: string | null;
+};
+
+/**
+ * Match Zapier/Make card output: lift lead_metadata and the first recipient.
+ */
+export function flattenCard(doc: Partial<Document> | null | undefined): FlattenedCard {
+	const source = doc ?? {};
+	const meta: LeadMetadata = source.lead_metadata ?? {};
+	const recipients = meta.recipients ?? [];
+	const clientName = meta.client_name || null;
+	return {
+		...source,
+		document_id: source.document_id,
+		workspace_id: source.workspace_id,
+		document_title: source.document_title,
+		document_type: source.document_type,
+		stage_id: source.stage_id,
+		stage_label: source.stage_label,
+		card_type: source.card_type || meta.card_type || null,
+		client_name: clientName,
+		website: meta.website || null,
+		street_address: meta.street_address || null,
+		apartment: meta.apartment || null,
+		country: meta.country || null,
+		state: meta.state || null,
+		city: meta.city || null,
+		zip_code: meta.zip_code || null,
+		lead_source: meta.lead_source || null,
+		lead_source_other: meta.lead_source_other || null,
+		comment: meta.comment || null,
+		owner_email: meta.owner_email || source.owner_email || null,
+		date_created: source.date_created,
+		status_changed_date: source.status_changed_date,
+		recipients,
+		lead_metadata: meta,
+		id: source.document_id,
+		...flattenFirstRecipient(recipients, clientName),
 	};
 }
 

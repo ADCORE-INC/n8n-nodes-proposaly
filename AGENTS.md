@@ -15,3 +15,7 @@ When adding or changing a resource, operation, trigger, loadOptions method, or r
 - Do not edit `eslint.config.mjs` (`n8n.strict` forbids it). Test files may disable the `node:test` import rule.
 
 Example: a new Get Many operation needs an `execute()` routing case, a payload/pagination assertion, and a list-to-items check — not a handler-only happy path.
+
+## API environments
+
+`nodes/Proposaly/environments.ts` is the source of truth for production vs test public API URLs (same hosts as Zapier and Make). n8n Cloud forbids `process.env` in community nodes, so workflows pick an environment on the credential. Local `.env` documents intent only; do not put API keys there.

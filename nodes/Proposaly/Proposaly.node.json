@@ -3,17 +3,17 @@
 	"nodeVersion": "1.0",
 	"codexVersion": "1.0",
 	"categories": [
-		"Data Transformation"
+		"Sales"
 	],
 	"resources": {
 		"credentialDocumentation": [
 			{
-				"url": "https://api.proposaly.io/redoc"
+				"url": "https://docs.proposaly.com/"
 			}
 		],
 		"primaryDocumentation": [
 			{
-				"url": "https://github.com/ADCORE-INC/n8n.proposaly.io"
+				"url": "https://github.com/ADCORE-INC/n8n-nodes-proposaly"
 			}
 		]
 	}

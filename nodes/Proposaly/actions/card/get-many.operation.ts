@@ -1,11 +1,11 @@
 import { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { Fields } from '../../constants';
+import { cardsWithNotes, includeNotesForItem } from '../../notes';
 import { toItems } from '../../shape';
-import { attachNotesToRecords, includeNotesForItem } from '../../notes';
 import { proposalyRequestLimited } from '../../transport';
 import { Document } from '../../types';
 
-export async function getManyDocumentsOperation(
+export async function getManyCardsOperation(
 	context: IExecuteFunctions,
 	itemIndex: number,
 ): Promise<INodeExecutionData[]> {
@@ -22,11 +22,5 @@ export async function getManyDocumentsOperation(
 		limit,
 	);
 
-	const withNotes = await attachNotesToRecords(
-		context,
-		documents,
-		(document) => document.document_id,
-		includeNotesForItem(context, itemIndex),
-	);
-	return toItems(withNotes, itemIndex);
+	return toItems(await cardsWithNotes(context, documents, includeNotesForItem(context, itemIndex)), itemIndex);
 }

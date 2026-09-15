@@ -1,4 +1,5 @@
 import type { IDataObject } from 'n8n-workflow';
+import { ProposalyApiUrls } from '../../nodes/Proposaly/environments';
 
 export type CapturedRequest = {
 	method?: string;
@@ -15,6 +16,8 @@ type ContextOptions = {
 	mode?: string;
 	inputItems?: IDataObject[];
 	continueOnFail?: boolean;
+	credentialUrl?: string;
+	throwOnUrlIncludes?: string;
 };
 
 export function createNodeContext(options: ContextOptions = {}) {
@@ -34,10 +37,23 @@ export function createNodeContext(options: ContextOptions = {}) {
 			qs: requestOptions.qs as IDataObject | undefined,
 		});
 
+		if (options.throwOnUrlIncludes && (requestOptions.url ?? '').includes(options.throwOnUrlIncludes)) {
+			throw new Error(`failed ${options.throwOnUrlIncludes}`);
+		}
+
 		if (options.responses) {
 			const index = Math.min(responseIndex, options.responses.length - 1);
 			responseIndex += 1;
 			return options.responses[index];
+		}
+
+		const pathname = new URL(requestOptions.url ?? 'https://invalid').pathname;
+		if (
+			requestOptions.method === 'GET' &&
+			pathname.endsWith('/notes') &&
+			!pathname.includes('/notes/')
+		) {
+			return { entities: [], pagination: {} };
 		}
 
 		return options.response;
@@ -56,7 +72,7 @@ export function createNodeContext(options: ContextOptions = {}) {
 			}
 			return undefined;
 		},
-		getCredentials: async () => ({ url: 'https://api.proposaly.io/v2/public-api' }),
+		getCredentials: async () => ({ url: options.credentialUrl ?? ProposalyApiUrls.production }),
 		getNode: () => ({ name: 'Proposaly' }),
 		getMode: () => options.mode ?? 'trigger',
 		getWorkflowStaticData: () => pollData,

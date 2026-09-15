@@ -19,6 +19,13 @@ import { deleteDocumentOperation } from './actions/document/delete.operation';
 import { duplicateDocumentOperation } from './actions/document/duplicate.operation';
 import { findDocumentOperation } from './actions/document/find.operation';
 import { getManyDocumentsOperation } from './actions/document/get-many.operation';
+import { findCardOperation } from './actions/card/find.operation';
+import { getManyCardsOperation } from './actions/card/get-many.operation';
+import { createNoteOperation } from './actions/note/create.operation';
+import { deleteNoteOperation } from './actions/note/delete.operation';
+import { findNoteOperation } from './actions/note/find.operation';
+import { getManyNotesOperation } from './actions/note/get-many.operation';
+import { updateNoteOperation } from './actions/note/update.operation';
 import { moveDocumentStageOperation } from './actions/document/move.operation';
 import { createDocumentShareLinkOperation } from './actions/document/share-link.operation';
 import { shareDocumentOperation } from './actions/document/share.operation';
@@ -49,11 +56,16 @@ import {
 	DocumentOperations,
 	RecipientOperations,
 	WorkspaceOperations,
+	NoteOperations,
+	CardOperations,
 } from './constants';
+import { listNoteParentOptions } from './notes';
 import { Document, Lead, Recipient, Workspace, WorkspaceLabel } from './types';
 
 import { documentFields, documentOperations } from './descriptions/DocumentDescription';
+import { cardFields, cardOperations } from './descriptions/CardDescription';
 import { leadFields, leadOperations } from './descriptions/LeadDescription';
+import { noteFields, noteOperations } from './descriptions/NoteDescription';
 import { recipientFields, recipientOperations } from './descriptions/RecipientDescription';
 import { workspaceFields, workspaceOperations } from './descriptions/WorkspaceDescription';
 import { proposalyRequest, proposalyRequestAll } from './transport';
@@ -92,7 +104,7 @@ export class Proposaly implements INodeType {
 		group: ['transform'],
 		version: 1,
 		usableAsTool: true,
-		description: 'Consume Proposaly API',
+		description: 'Unify presentations, proposals, agreements, and payments in Proposaly',
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		defaults: {
 			name: 'Proposaly',
@@ -113,12 +125,20 @@ export class Proposaly implements INodeType {
 				type: 'options',
 				options: [
 					{
+						name: 'Card',
+						value: Resources.Card,
+					},
+					{
 						name: 'Document',
 						value: Resources.Document,
 					},
 					{
 						name: 'Lead',
 						value: Resources.Lead,
+					},
+					{
+						name: 'Note',
+						value: Resources.Note,
 					},
 					{
 						name: 'Recipient',
@@ -139,6 +159,10 @@ export class Proposaly implements INodeType {
 			...recipientFields,
 			...documentOperations,
 			...documentFields,
+			...cardOperations,
+			...cardFields,
+			...noteOperations,
+			...noteFields,
 			...workspaceOperations,
 			...workspaceFields,
 		],
@@ -269,6 +293,23 @@ export class Proposaly implements INodeType {
 					name: label.title,
 					value: label.label_key,
 				}));
+			},
+			async getCardWorkspaces(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				const workspaces = await proposalyRequest(this, {
+					method: 'GET',
+					path: '/workspaces',
+				});
+				const items: Workspace[] = Array.isArray(workspaces) ? workspaces : [];
+				return items
+					.filter((workspace) => workspace.workspace_type === 'card')
+					.map((workspace) => ({
+						name: workspace.workspace_name,
+						value: workspace.workspace_id,
+					}));
+			},
+			async getNoteParents(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				const workspaceId = (this.getNodeParameter(Fields.WorkspaceId, 0) as string) || '';
+				return listNoteParentOptions(this, workspaceId);
 			},
 		},
 	};
@@ -406,6 +447,40 @@ export class Proposaly implements INodeType {
 
 			if (operation === DocumentOperations.GetMany) {
 				return executeItems(this, (i) => getManyDocumentsOperation(this, i));
+			}
+		}
+
+		// CARD ACTIONS
+		if (resource === Resources.Card) {
+			if (operation === CardOperations.FindById) {
+				return executeItems(this, (i) => findCardOperation(this, items, i));
+			}
+
+			if (operation === CardOperations.GetMany) {
+				return executeItems(this, (i) => getManyCardsOperation(this, i));
+			}
+		}
+
+		// NOTE ACTIONS
+		if (resource === Resources.Note) {
+			if (operation === NoteOperations.Create) {
+				return executeItems(this, (i) => createNoteOperation(this, items, i));
+			}
+
+			if (operation === NoteOperations.Update) {
+				return executeItems(this, (i) => updateNoteOperation(this, items, i));
+			}
+
+			if (operation === NoteOperations.Delete) {
+				return executeItems(this, (i) => deleteNoteOperation(this, items, i));
+			}
+
+			if (operation === NoteOperations.FindById) {
+				return executeItems(this, (i) => findNoteOperation(this, items, i));
+			}
+
+			if (operation === NoteOperations.GetMany) {
+				return executeItems(this, (i) => getManyNotesOperation(this, i));
 			}
 		}
 

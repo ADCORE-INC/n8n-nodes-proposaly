@@ -530,4 +530,18 @@ export const documentFields: INodeProperties[] = [
 		},
 		description: 'Max number of results to return',
 	},
+	{
+		displayName: 'Include Notes',
+		name: Fields.IncludeNotes,
+		type: 'boolean',
+		default: true,
+		displayOptions: {
+			show: {
+				resource: [Resources.Document],
+				operation: [DocumentOperations.FindById, DocumentOperations.GetMany],
+			},
+		},
+		description:
+			'Whether to fetch nested notes. Turn off to save API credits; each record can use extra API calls.',
+	},
 ];

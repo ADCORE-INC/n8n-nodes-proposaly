@@ -72,6 +72,27 @@ This node supports the following resources and operations:
 | Get Many | List workspaces in your company |
 | Get Stages | List stages in a workspace |
 
+### Card
+
+Cards are documents in a **Card** workspace. Find and list return flattened lead metadata (`client_name`, first recipient `email` / `first_name` / `last_name` / `phone_number`). Nested `notes` are included by default; turn **Include Notes** off to skip those extra API calls.
+
+| Operation | Description |
+|-----------|-------------|
+| Find By ID | Retrieve a card by its document ID |
+| Get Many | List cards in a Card workspace |
+
+### Note
+
+Notes attach to a document, card, or lead. Server-generated notes (`agent` / `order_fields`) are read-only.
+
+| Operation | Description |
+|-----------|-------------|
+| Create | Create a note on a document, card, or lead |
+| Update | Update a note's title and/or body |
+| Delete | Permanently delete a note |
+| Find By ID | Retrieve a note by its ID |
+| Get Many | List notes on a document, card, or lead |
+
 ### Trigger Node
 
 **Proposaly Trigger** is a **polling** trigger. It periodically asks Proposaly for new or changed records, then starts a workflow when it finds them.
@@ -83,12 +104,15 @@ This node supports the following resources and operations:
 | Deleted Lead | Lead deleted in a workspace |
 | New Document | New document in a workspace |
 | Document Moved to New Stage | Document entered the selected stage |
+| New Card | New card in a Card workspace |
+| Card Moved to New Stage | Card entered the selected stage |
 | New Recipient | New recipient on a selected document |
+| New Note | New note on a selected document, card, or lead |
 | New Workspace | New workspace in the company |
 
 The first production poll seeds the cursor and does not replay existing records. **Execute step** in the editor still returns a sample. **Limit** (default 50) caps how many new items are emitted on later polls.
 
-Lead trigger and lead action outputs include Zapier/Make-style fields: `client_name`, plus the first recipient lifted to `email`, `first_name`, `last_name`, and `phone_number`. The `recipients` array is still present.
+Lead trigger and lead action outputs include Zapier/Make-style fields: `client_name`, plus the first recipient lifted to `email`, `first_name`, `last_name`, and `phone_number`. The `recipients` array is still present. Lead, document, and card outputs include nested `notes` by default (up to 100 newest notes). Turn **Include Notes** off to avoid extra API usage.
 
 ## Credentials
 
@@ -109,8 +133,10 @@ To authenticate with Proposaly, you need an API key from your Proposaly workspac
 2. Click **Add Credential**
 3. Search for **Proposaly API**
 4. Paste your API Key
-5. The default API URL is `https://api.proposaly.io/v2/public-api` (only change if instructed by Proposaly support)
+5. Choose **Environment**: **Test** (`test-api.proposaly.io`) or **Production** (`api.proposaly.io`)
 6. Click **Save**
+
+Local `npm run dev` prints the Test vs Production hosts from `nodes/Proposaly/environments.ts` (same URLs as Zapier and Make). n8n Cloud forbids `process.env` in community nodes, so `.env` (`PROPOSALY_ENVIRONMENT=test`, see `.env.example`) documents local intent only — you still choose **Environment** on the credential. Existing credentials keep Production until you edit them and pick Test. API keys stay in n8n credentials, not in `.env`.
 
 ## Compatibility
 
@@ -172,6 +198,7 @@ See [CHANGELOG.md](CHANGELOG.md) for a detailed version history.
 - Lead outputs flattened to match Zapier/Make (`client_name`, first-recipient email/name/phone)
 - Polling triggers seed on first production poll instead of replaying history
 - Optional document labels and `copy_team_members` on create/duplicate
+- Credential **Environment** (Test vs Production); URLs live in `nodes/Proposaly/environments.ts`
 
 ### 0.1.0
 

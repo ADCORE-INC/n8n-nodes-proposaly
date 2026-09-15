@@ -3,15 +3,18 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import type { INodeProperties } from 'n8n-workflow';
 import {
+	CardOperations,
 	DocumentOperations,
 	Fields,
 	LeadOperations,
+	NoteOperations,
 	RecipientOperations,
 	Resources,
 	WorkspaceOperations,
 } from '../nodes/Proposaly/constants';
 import { Proposaly } from '../nodes/Proposaly/Proposaly.node';
 import { ProposalyTrigger } from '../nodes/Proposaly/ProposalyTrigger.node';
+import { ProposalyApiUrls } from '../nodes/Proposaly/environments';
 import { createNodeContext, runExecute } from './helpers/context';
 
 const leadResponse = {
@@ -58,6 +61,24 @@ describe('Proposaly.execute routing', () => {
 			operationValues(Resources.Workspace).sort(),
 			Object.values(WorkspaceOperations).sort(),
 		);
+		assert.deepEqual(operationValues(Resources.Note).sort(), Object.values(NoteOperations).sort());
+		assert.deepEqual(operationValues(Resources.Card).sort(), Object.values(CardOperations).sort());
+	});
+
+	it('sends execute requests to the credential Environment URL', async () => {
+		const node = new Proposaly();
+		const { captured } = await runExecute(
+			node.execute,
+			{
+				[Fields.Resource]: Resources.Lead,
+				[Fields.Operation]: LeadOperations.FindById,
+				[Fields.LeadIdString]: 'lead-1',
+			},
+			{ entities: [leadResponse], pagination: {} },
+			{ credentialUrl: ProposalyApiUrls.test },
+		);
+
+		assert.equal(new URL(captured[0]?.url ?? '').origin, 'https://test-api.proposaly.io');
 	});
 
 	it('routes every lead operation through execute()', async () => {
@@ -336,6 +357,72 @@ describe('Proposaly.execute routing', () => {
 		}
 	});
 
+	it('routes note and card operations through execute()', async () => {
+		const node = new Proposaly();
+		const note = { id: 'n1', title: 'Follow-up' };
+		const cases: Array<[string, string, Record<string, unknown>, unknown]> = [
+			[
+				Resources.Note,
+				NoteOperations.Create,
+				{
+					[Fields.ParentId]: 'doc-1',
+					[Fields.NoteTitle]: 'Follow-up',
+					[Fields.NoteBody]: 'Hi',
+					[Fields.NoteSource]: 'note',
+					[Fields.AuthorEmail]: '',
+				},
+				note,
+			],
+			[
+				Resources.Note,
+				NoteOperations.Update,
+				{
+					[Fields.ParentId]: 'doc-1',
+					[Fields.NoteId]: 'n1',
+					[Fields.NoteTitle]: 'Updated',
+					[Fields.NoteBody]: '',
+				},
+				note,
+			],
+			[Resources.Note, NoteOperations.Delete, { [Fields.ParentId]: 'doc-1', [Fields.NoteId]: 'n1' }, {}],
+			[Resources.Note, NoteOperations.FindById, { [Fields.NoteId]: 'n1' }, note],
+			[
+				Resources.Note,
+				NoteOperations.GetMany,
+				{
+					[Fields.ParentId]: 'doc-1',
+					[Fields.NoteSource]: '',
+					[Fields.NoteSearch]: '',
+					[Fields.ReturnAll]: false,
+					[Fields.Limit]: 50,
+				},
+				{ entities: [note], pagination: {} },
+			],
+			[
+				Resources.Card,
+				CardOperations.FindById,
+				{ [Fields.DocumentIdString]: 'doc-1' },
+				{ entities: [{ document_id: 'doc-1', document_title: 'Card' }], pagination: {} },
+			],
+			[
+				Resources.Card,
+				CardOperations.GetMany,
+				{ [Fields.WorkspaceId]: 'ws-card', [Fields.ReturnAll]: false, [Fields.Limit]: 50 },
+				{ entities: [{ document_id: 'doc-1' }], pagination: {} },
+			],
+		];
+
+		for (const [resource, operation, fields, response] of cases) {
+			const executed = await runExecute(node.execute, {
+				[Fields.Resource]: resource,
+				[Fields.Operation]: operation,
+				...fields,
+			}, response);
+			assert.ok(executed.result, `${resource} ${operation} should not return null`);
+			assert.ok(executed.captured.length > 0, `${resource} ${operation} should call the API`);
+		}
+	});
+
 	it('continues on fail when the API throws', async () => {
 		const node = new Proposaly();
 		const { context } = createNodeContext({
@@ -366,10 +453,13 @@ describe('ProposalyTrigger.poll routing', () => {
 			events.map((event) => event.value).sort(),
 			[
 				'archivedLead',
+				'cardMovedToNewStage',
 				'deletedLead',
 				'documentMovedToNewStage',
+				'newCard',
 				'newDocument',
 				'newLead',
+				'newNote',
 				'newRecipient',
 				'newWorkspace',
 			].sort(),
@@ -390,6 +480,8 @@ describe('ProposalyTrigger.poll routing', () => {
 					workspaceId: 'ws-1',
 					documentId: 'doc-1',
 					stageId: 'Approved',
+					parentId: 'doc-1',
+					noteSource: '',
 					limit: 50,
 				},
 				response,
@@ -432,5 +524,57 @@ describe('loadOptions', () => {
 
 		const labels = await node.methods.loadOptions.getWorkspaceLabels.call(context);
 		assert.deepEqual(labels, [{ name: 'Hot', value: 'hot' }]);
+	});
+
+	it('loads documents only for card workspaces, and documents plus leads otherwise', async () => {
+		const node = new Proposaly();
+		const empty = createNodeContext({ params: {}, responses: [] });
+		assert.deepEqual(await node.methods.loadOptions.getNoteParents.call(empty.context), []);
+		assert.equal(empty.captured.length, 0);
+
+		const card = createNodeContext({
+			params: { [Fields.WorkspaceId]: 'ws-card' },
+			responses: [
+				[{ workspace_id: 'ws-card', workspace_name: 'Cards', workspace_type: 'card' }],
+				{ entities: [{ document_id: 'doc-1', document_title: 'Acme card' }], pagination: {} },
+			],
+		});
+		assert.deepEqual(await node.methods.loadOptions.getNoteParents.call(card.context), [
+			{ name: 'Acme card', value: 'doc-1' },
+		]);
+		assert.equal(card.captured.some((request) => (request.url ?? '').includes('/leads')), false);
+
+		const mixed = createNodeContext({
+			params: { [Fields.WorkspaceId]: 'ws-1' },
+			responses: [
+				[{ workspace_id: 'ws-1', workspace_name: 'Sales', workspace_type: 'proposal' }],
+				{ entities: [{ document_id: 'doc-1', document_title: 'Proposal' }], pagination: {} },
+				{ entities: [{ lead_id: 'lead-1', client_name: 'Acme' }], pagination: {} },
+			],
+		});
+		assert.deepEqual(await node.methods.loadOptions.getNoteParents.call(mixed.context), [
+			{ name: 'Proposal', value: 'doc-1' },
+			{ name: 'Lead: Acme', value: 'lead-1' },
+		]);
+	});
+
+	it('does not expose parent type; note IDs are strings', () => {
+		const node = new Proposaly();
+		const trigger = new ProposalyTrigger();
+		assert.equal(
+			node.description.properties.some((property) => property.name === 'parentType'),
+			false,
+		);
+		assert.equal(
+			trigger.description.properties.some((property) => property.name === 'parentType'),
+			false,
+		);
+
+		const parent = node.description.properties.find((property) => property.name === Fields.ParentId);
+		assert.equal(parent?.displayName, 'Document, Card, or Lead ID');
+
+		const noteId = node.description.properties.find((property) => property.name === Fields.NoteId);
+		assert.equal(noteId?.type, 'string');
+		assert.equal(noteId?.displayName, 'Note ID');
 	});
 });
