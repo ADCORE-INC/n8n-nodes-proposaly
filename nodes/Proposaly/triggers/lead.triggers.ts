@@ -1,8 +1,8 @@
 import type { IDataObject, INodeExecutionData, IPollFunctions } from 'n8n-workflow';
 import { Lead, PaginatedApiResponse, PollData } from '../types';
-import { isRetryableProposalyError, proposalyRequest } from '../transport';
+import { isRetryableProposalyError, proposalyRequest, rethrowAsNodeError } from '../transport';
 import { diffPollRecords, flattenLead, resolvePollLimit } from '../shape';
-import { attachNotesToRecords, includeNotesForPoll } from '../notes';
+import { attachNotesToRecords, includeNotesForPoll, includeNotesQuery } from '../notes';
 
 function resetLeadPollData(pollData: PollData) {
 	pollData.lastAddedLeadId = undefined;
@@ -56,6 +56,7 @@ export async function pollLeadTrigger(
 					workspace_id: workspaceId,
 					page,
 					lead_status: status,
+					...includeNotesQuery(includeNotesForPoll(context)),
 				},
 			});
 
@@ -106,6 +107,6 @@ export async function pollLeadTrigger(
 		if (isRetryableProposalyError(error)) {
 			return null;
 		}
-		throw error;
+		rethrowAsNodeError(context, error);
 	}
 }

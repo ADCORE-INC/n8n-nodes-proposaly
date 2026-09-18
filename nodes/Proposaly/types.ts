@@ -36,6 +36,8 @@ export type Lead = {
 	owner_email?: string | null;
 	recipients?: Recipient[] | null;
 	date_created: number;
+	notes?: Note[] | null;
+	notes_total?: number | null;
 };
 
 export enum ProposalBoardType {
@@ -76,6 +78,8 @@ export type Document = {
 	stage_label?: string;
 	card_type?: string | null;
 	lead_metadata?: LeadMetadata;
+	notes?: Note[] | null;
+	notes_total?: number | null;
 };
 
 export type Note = {
@@ -89,6 +93,15 @@ export type Note = {
 	author_email?: string | null;
 	created_at?: number;
 	updated_at?: number;
+	created_by?: {
+		id?: string;
+		first_name?: string;
+		last_name?: string;
+		email?: string;
+		avatar_url?: string | null;
+	};
+	attached_file?: unknown;
+	order_fields?: unknown;
 };
 
 export type PaginatedApiResponse<T> = {

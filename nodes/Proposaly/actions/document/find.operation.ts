@@ -2,7 +2,7 @@ import { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { Document, PaginatedApiResponse } from '../../types';
 import { proposalyRequest } from '../../transport';
 import { Fields } from '../../constants';
-import { documentItemWithNotes } from '../../notes';
+import { documentItemWithNotes, includeNotesForItem, includeNotesQuery } from '../../notes';
 
 export async function findDocumentOperation(
 	context: IExecuteFunctions,
@@ -16,6 +16,7 @@ export async function findDocumentOperation(
 		path: '/documents',
 		qs: {
 			document_id: documentId,
+			...includeNotesQuery(includeNotesForItem(context, itemIndex)),
 		},
 	});
 

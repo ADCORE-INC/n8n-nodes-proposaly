@@ -496,5 +496,6 @@ describe('Conditional payloads and empty results', () => {
 		const sliced = await getManyLeadsOperation(limited.context, 0);
 		assert.equal(sliced.length, 1);
 		assert.equal(sliced[0].json.lead_id, 'lead-1');
+		assert.equal(limited.captured[0].qs?.include_notes, true);
 	});
 });

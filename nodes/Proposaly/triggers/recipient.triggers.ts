@@ -1,6 +1,6 @@
 import { INodeExecutionData, IPollFunctions, IDataObject } from 'n8n-workflow';
 import { PollData, Recipient } from '../types';
-import { isRetryableProposalyError, proposalyRequest } from '../transport';
+import { isRetryableProposalyError, proposalyRequest, rethrowAsNodeError } from '../transport';
 import { diffPollRecords, resolvePollLimit } from '../shape';
 
 export async function pollRecipientTrigger(
@@ -17,7 +17,7 @@ export async function pollRecipientTrigger(
 		if (isRetryableProposalyError(error)) {
 			return null;
 		}
-		throw error;
+		rethrowAsNodeError(context, error);
 	}
 }
 

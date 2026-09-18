@@ -17,11 +17,13 @@ import { pollCardTrigger } from './triggers/card.triggers';
 import { listNoteParentOptions } from './notes';
 import { proposalyRequest, proposalyRequestAll } from './transport';
 
+// Trigger nodes cannot be invoked as AI tools.
+// eslint-disable-next-line @n8n/community-nodes/node-usable-as-tool
 export class ProposalyTrigger implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Proposaly Trigger',
 		name: 'proposalyTrigger',
-		icon: 'file:proposaly.svg',
+		icon: { light: 'file:proposaly.svg', dark: 'file:proposaly-dark.svg' },
 		group: ['trigger'],
 		version: 1,
 		description: 'Unify presentations, proposals, agreements, and payments in Proposaly',
@@ -32,7 +34,6 @@ export class ProposalyTrigger implements INodeType {
 		polling: true,
 		inputs: [],
 		outputs: ['main'] as NodeConnectionType[],
-		usableAsTool: true,
 		credentials: [
 			{
 				name: 'proposalyApi',
@@ -140,9 +141,7 @@ export class ProposalyTrigger implements INodeType {
 					'Optional. Used to list parents below. Card workspaces load documents only; other workspaces load documents and leads. Skip this if you map an ID. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 			},
 			{
-				// API values are IDs; the list only shows names as labels.
-				// eslint-disable-next-line n8n-nodes-base/node-param-display-name-wrong-for-dynamic-options
-				displayName: 'Document, Card, or Lead ID',
+				displayName: 'Parent Name or ID',
 				name: 'parentId',
 				type: 'options',
 				typeOptions: {
@@ -237,7 +236,7 @@ export class ProposalyTrigger implements INodeType {
 					},
 				},
 				description:
-					'Whether to fetch nested notes. Turn off to save API credits; each record can use extra API calls.',
+					'Whether to include nested notes on each record in the same API call. Turn off for smaller pages.',
 			},
 			{
 				displayName: 'Limit',

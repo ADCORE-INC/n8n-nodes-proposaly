@@ -116,17 +116,40 @@ export function includeNotesForPoll(context: {
 	return context.getNodeParameter(Fields.IncludeNotes, true) !== false;
 }
 
+export function includeNotesQuery(includeNotes: boolean): IDataObject {
+	return includeNotes ? { include_notes: true } : {};
+}
+
+function withoutNotesFields<T extends object>(record: T): T {
+	const rest = { ...(record as T & { notes?: unknown; notes_total?: unknown }) };
+	delete rest.notes;
+	delete rest.notes_total;
+	return rest as T;
+}
+
 export async function attachNotes<T extends object>(
 	context: ProposalyContext,
 	record: T,
 	parentId: string | undefined,
 	includeNotes = true,
-): Promise<T & { notes?: Note[] }> {
+): Promise<T & { notes?: Note[]; notes_total?: number }> {
 	if (!includeNotes) {
-		return { ...record };
+		return withoutNotesFields(record);
 	}
+
+	const nested = (record as { notes?: unknown }).notes;
+	if (Array.isArray(nested)) {
+		const notes = nested.map((note) => normalizeNote(note as Note));
+		const notesTotal = (record as { notes_total?: unknown }).notes_total;
+		return {
+			...record,
+			notes,
+			notes_total: typeof notesTotal === 'number' ? notesTotal : notes.length,
+		};
+	}
+
 	const notes = parentId ? await fetchNotes(context, parentId) : [];
-	return { ...record, notes };
+	return { ...withoutNotesFields(record), notes, notes_total: notes.length };
 }
 
 export async function attachNotesToRecords<T extends object>(

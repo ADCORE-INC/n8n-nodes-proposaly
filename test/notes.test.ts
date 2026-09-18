@@ -63,6 +63,25 @@ describe('fetchNotes', () => {
 		const result = await attachNotes(context, { document_id: 'd1' }, 'd1');
 		assert.deepEqual(result.notes, [{ id: 'n1', title: 'Hi' }]);
 	});
+
+	it('attachNotes uses nested notes without a second /notes request', async () => {
+		const { context, captured } = createNodeContext({ responses: [] });
+		const nested = [
+			{ id: 'n1', title: 'From n8n', body: '', source: 'note' },
+			{ id: 'n2', title: 'Kickoff', body: 'New card', source: 'note' },
+		];
+		const result = await attachNotes(
+			context,
+			{ document_id: 'd1', notes: nested, notes_total: 2 },
+			'd1',
+		);
+		assert.equal(captured.length, 0);
+		assert.equal(result.notes_total, 2);
+		assert.deepEqual(
+			result.notes?.map((note) => note.id),
+			['n1', 'n2'],
+		);
+	});
 });
 
 describe('listNoteParentOptions', () => {
@@ -182,27 +201,37 @@ describe('Card operations', () => {
 		const found = createNodeContext({
 			params: { [Fields.DocumentIdString]: 'doc-1' },
 			responses: [
-				{ entities: [cardDocument], pagination: {} },
-				{ entities: [note], pagination: {} },
+				{
+					entities: [{ ...cardDocument, notes: [note], notes_total: 1 }],
+					pagination: {},
+				},
 			],
 		});
 		const card = await findCardOperation(found.context, [], 0);
+		assert.equal(found.captured.length, 1);
 		assert.equal(found.captured[0].qs?.document_id, 'doc-1');
+		assert.equal(found.captured[0].qs?.include_notes, true);
 		assert.equal(card.json.client_name, 'Acme');
 		assert.equal(card.json.email, 'ada@example.com');
 		assert.equal((card.json.notes as Array<{ id: string }>)[0].id, 'n1');
+		assert.equal(card.json.notes_total, 1);
 
 		const listed = createNodeContext({
 			params: { [Fields.WorkspaceId]: 'ws-card', [Fields.ReturnAll]: false, [Fields.Limit]: 50 },
 			responses: [
-				{ entities: [cardDocument], pagination: {} },
-				{ entities: [note], pagination: {} },
+				{
+					entities: [{ ...cardDocument, notes: [note], notes_total: 1 }],
+					pagination: {},
+				},
 			],
 		});
 		const cards = await getManyCardsOperation(listed.context, 0);
+		assert.equal(listed.captured.length, 1);
+		assert.equal(listed.captured[0].qs?.include_notes, true);
 		assert.equal(cards.length, 1);
 		assert.equal(cards[0].json.document_id, 'doc-1');
 		assert.equal((cards[0].json.notes as Array<{ id: string }>).length, 1);
+		assert.equal(cards[0].json.notes_total, 1);
 	});
 });
 
@@ -211,24 +240,39 @@ describe('Nested notes on existing resources', () => {
 		const lead = createNodeContext({
 			params: { [Fields.LeadIdString]: 'lead-1' },
 			responses: [
-				{ entities: [{ lead_id: 'lead-1', company: 'Acme', recipients: [] }], pagination: {} },
-				{ entities: [note], pagination: {} },
+				{
+					entities: [
+						{ lead_id: 'lead-1', company: 'Acme', recipients: [], notes: [note], notes_total: 1 },
+					],
+					pagination: {},
+				},
 			],
 		});
 		const foundLead = await findLeadByIdOperation(lead.context, [], 0);
+		assert.equal(lead.captured.length, 1);
+		assert.equal(lead.captured[0].qs?.lead_id, 'lead-1');
+		assert.equal(lead.captured[0].qs?.include_notes, true);
 		assert.equal(foundLead.json.lead_id, 'lead-1');
 		assert.equal((foundLead.json.notes as Array<{ id: string }>)[0].id, 'n1');
+		assert.equal(foundLead.json.notes_total, 1);
 
 		const document = createNodeContext({
 			params: { [Fields.DocumentIdString]: 'doc-1' },
 			responses: [
-				{ entities: [{ document_id: 'doc-1', document_title: 'Proposal' }], pagination: {} },
-				{ entities: [note], pagination: {} },
+				{
+					entities: [
+						{ document_id: 'doc-1', document_title: 'Proposal', notes: [note], notes_total: 1 },
+					],
+					pagination: {},
+				},
 			],
 		});
 		const foundDocument = await findDocumentOperation(document.context, [], 0);
+		assert.equal(document.captured.length, 1);
+		assert.equal(document.captured[0].qs?.include_notes, true);
 		assert.equal(foundDocument.json.document_id, 'doc-1');
 		assert.equal((foundDocument.json.notes as Array<{ id: string }>)[0].id, 'n1');
+		assert.equal(foundDocument.json.notes_total, 1);
 	});
 
 	it('skips nested notes and extra API calls when Include Notes is off', async () => {
@@ -238,12 +282,25 @@ describe('Nested notes on existing resources', () => {
 		const lead = createNodeContext({
 			params: { [Fields.LeadIdString]: 'lead-1', [Fields.IncludeNotes]: false },
 			responses: [
-				{ entities: [{ lead_id: 'lead-1', company: 'Acme', recipients: [] }], pagination: {} },
+				{
+					entities: [
+						{
+							lead_id: 'lead-1',
+							company: 'Acme',
+							recipients: [],
+							notes: null,
+							notes_total: null,
+						},
+					],
+					pagination: {},
+				},
 			],
 		});
 		const foundLead = await findLeadByIdOperation(lead.context, [], 0);
 		assert.equal(foundLead.json.lead_id, 'lead-1');
 		assert.equal('notes' in foundLead.json, false);
+		assert.equal('notes_total' in foundLead.json, false);
+		assert.equal(lead.captured[0].qs?.include_notes, undefined);
 		assert.equal(
 			lead.captured.filter((request) => (request.url ?? '').includes('/notes')).length,
 			0,
@@ -251,11 +308,12 @@ describe('Nested notes on existing resources', () => {
 
 		const card = createNodeContext({
 			params: { [Fields.DocumentIdString]: 'doc-1', [Fields.IncludeNotes]: false },
-			responses: [{ entities: [cardDocument], pagination: {} }],
+			responses: [{ entities: [{ ...cardDocument, notes: null, notes_total: null }], pagination: {} }],
 		});
 		const foundCard = await findCardOperation(card.context, [], 0);
 		assert.equal(foundCard.json.client_name, 'Acme');
 		assert.equal('notes' in foundCard.json, false);
+		assert.equal(card.captured[0].qs?.include_notes, undefined);
 		assert.equal(
 			card.captured.filter((request) => (request.url ?? '').includes('/notes')).length,
 			0,

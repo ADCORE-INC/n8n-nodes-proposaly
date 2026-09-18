@@ -2,11 +2,11 @@ import type { INodeProperties } from 'n8n-workflow';
 import { Fields, Resources, RecipientOperations } from '../constants';
 
 export const recipientOperations: INodeProperties[] = [
-	// eslint-disable-next-line n8n-nodes-base/node-param-default-missing
 	{
 		displayName: 'Operation',
 		name: Fields.Operation,
 		type: 'options',
+		noDataExpression: true,
 		displayOptions: {
 			show: {
 				resource: [Resources.Recipient],
@@ -56,8 +56,7 @@ export const recipientOperations: INodeProperties[] = [
 				action: 'Update notification preferences of a recipient',
 			},
 		],
-		default: RecipientOperations.Add,
-		noDataExpression: true,
+		default: 'addRecipient',
 	},
 ];
 
@@ -250,12 +249,12 @@ export const recipientFields: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: 'No Change',
-				value: '',
-			},
-			{
 				name: 'Editor',
 				value: 'editor',
+			},
+			{
+				name: 'No Change',
+				value: '',
 			},
 			{
 				name: 'Viewer',
@@ -272,16 +271,16 @@ export const recipientFields: INodeProperties[] = [
 		default: '',
 		options: [
 			{
-				name: 'No Change',
-				value: '',
-			},
-			{
 				name: 'Active',
 				value: 'active',
 			},
 			{
 				name: 'Block',
 				value: 'block',
+			},
+			{
+				name: 'No Change',
+				value: '',
 			},
 		],
 		displayOptions: {
@@ -304,27 +303,26 @@ export const recipientFields: INodeProperties[] = [
 				operation: [RecipientOperations.UpdateNotificationSettings],
 			},
 		},
-		// eslint-disable-next-line
 		options: [
 			{
-				name: 'No Change',
-				value: '',
-			},
-			{
-				name: 'SMS',
-				value: 'sms',
+				name: 'Both Email & SMS',
+				value: 'email_sms',
 			},
 			{
 				name: 'Email',
 				value: 'email',
 			},
 			{
-				name: 'Both Email & SMS',
-				value: 'email_sms',
+				name: 'No Change',
+				value: '',
 			},
 			{
 				name: 'None',
 				value: 'none',
+			},
+			{
+				name: 'SMS',
+				value: 'sms',
 			},
 		],
 	},
@@ -340,27 +338,26 @@ export const recipientFields: INodeProperties[] = [
 				operation: [RecipientOperations.UpdateNotificationSettings],
 			},
 		},
-		// eslint-disable-next-line
 		options: [
 			{
-				name: 'No Change',
-				value: '',
-			},
-			{
-				name: 'SMS',
-				value: 'sms',
+				name: 'Both Email & SMS',
+				value: 'email_sms',
 			},
 			{
 				name: 'Email',
 				value: 'email',
 			},
 			{
-				name: 'Both Email & SMS',
-				value: 'email_sms',
+				name: 'No Change',
+				value: '',
 			},
 			{
 				name: 'None',
 				value: 'none',
+			},
+			{
+				name: 'SMS',
+				value: 'sms',
 			},
 		],
 	},
@@ -376,27 +373,26 @@ export const recipientFields: INodeProperties[] = [
 				operation: [RecipientOperations.UpdateNotificationSettings],
 			},
 		},
-		// eslint-disable-next-line
 		options: [
 			{
-				name: 'No Change',
-				value: '',
-			},
-			{
-				name: 'SMS',
-				value: 'sms',
+				name: 'Both Email & SMS',
+				value: 'email_sms',
 			},
 			{
 				name: 'Email',
 				value: 'email',
 			},
 			{
-				name: 'Both Email & SMS',
-				value: 'email_sms',
+				name: 'No Change',
+				value: '',
 			},
 			{
 				name: 'None',
 				value: 'none',
+			},
+			{
+				name: 'SMS',
+				value: 'sms',
 			},
 		],
 	},
@@ -412,27 +408,26 @@ export const recipientFields: INodeProperties[] = [
 				operation: [RecipientOperations.UpdateNotificationSettings],
 			},
 		},
-		// eslint-disable-next-line
 		options: [
 			{
-				name: 'No Change',
-				value: '',
-			},
-			{
-				name: 'SMS',
-				value: 'sms',
+				name: 'Both Email & SMS',
+				value: 'email_sms',
 			},
 			{
 				name: 'Email',
 				value: 'email',
 			},
 			{
-				name: 'Both Email & SMS',
-				value: 'email_sms',
+				name: 'No Change',
+				value: '',
 			},
 			{
 				name: 'None',
 				value: 'none',
+			},
+			{
+				name: 'SMS',
+				value: 'sms',
 			},
 		],
 	},
@@ -448,27 +443,26 @@ export const recipientFields: INodeProperties[] = [
 				operation: [RecipientOperations.UpdateNotificationSettings],
 			},
 		},
-		// eslint-disable-next-line
 		options: [
 			{
-				name: 'No Change',
-				value: '',
-			},
-			{
-				name: 'SMS',
-				value: 'sms',
+				name: 'Both Email & SMS',
+				value: 'email_sms',
 			},
 			{
 				name: 'Email',
 				value: 'email',
 			},
 			{
-				name: 'Both Email & SMS',
-				value: 'email_sms',
+				name: 'No Change',
+				value: '',
 			},
 			{
 				name: 'None',
 				value: 'none',
+			},
+			{
+				name: 'SMS',
+				value: 'sms',
 			},
 		],
 	},
@@ -484,27 +478,26 @@ export const recipientFields: INodeProperties[] = [
 				operation: [RecipientOperations.UpdateNotificationSettings],
 			},
 		},
-		// eslint-disable-next-line
 		options: [
 			{
-				name: 'No Change',
-				value: '',
-			},
-			{
-				name: 'SMS',
-				value: 'sms',
+				name: 'Both Email & SMS',
+				value: 'email_sms',
 			},
 			{
 				name: 'Email',
 				value: 'email',
 			},
 			{
-				name: 'Both Email & SMS',
-				value: 'email_sms',
+				name: 'No Change',
+				value: '',
 			},
 			{
 				name: 'None',
 				value: 'none',
+			},
+			{
+				name: 'SMS',
+				value: 'sms',
 			},
 		],
 	},

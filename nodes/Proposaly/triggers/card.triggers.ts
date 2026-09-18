@@ -1,7 +1,7 @@
 import type { IDataObject, INodeExecutionData, IPollFunctions } from 'n8n-workflow';
 import { Document, PaginatedApiResponse, PollData } from '../types';
-import { isRetryableProposalyError, proposalyRequest } from '../transport';
-import { cardsWithNotes, includeNotesForPoll } from '../notes';
+import { isRetryableProposalyError, proposalyRequest, rethrowAsNodeError } from '../transport';
+import { cardsWithNotes, includeNotesForPoll, includeNotesQuery } from '../notes';
 import { diffPollRecords, resolvePollLimit } from '../shape';
 
 function resetCardPollDataWorkspace(pollData: PollData) {
@@ -24,6 +24,7 @@ async function loadDocuments(
 			qs: {
 				...qs,
 				page,
+				...includeNotesQuery(includeNotesForPoll(context)),
 			},
 		});
 
@@ -55,7 +56,7 @@ export async function pollCardTrigger(
 		if (isRetryableProposalyError(error)) {
 			return null;
 		}
-		throw error;
+		rethrowAsNodeError(context, error);
 	}
 }
 

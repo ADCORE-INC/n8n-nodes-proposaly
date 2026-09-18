@@ -145,6 +145,22 @@ export function isRetryableProposalyError(error: unknown): boolean {
 	return !!errorData?.proposaly?.isRetryable;
 }
 
+export function rethrowAsNodeError(context: ProposalyContext, error: unknown): never {
+	if (error instanceof NodeApiError) {
+		throw new NodeApiError(context.getNode(), error as unknown as JsonObject, {
+			message: error.message,
+			description: error.description ?? undefined,
+			httpCode: error.httpCode ?? undefined,
+		});
+	}
+
+	if (error instanceof NodeOperationError) {
+		throw new NodeOperationError(context.getNode(), error);
+	}
+
+	throw new NodeApiError(context.getNode(), error as JsonObject);
+}
+
 export async function proposalyRequest<T = IDataObject>(
 	context: ProposalyContext,
 	options: ProposalyRequestOptions,
@@ -183,8 +199,9 @@ export async function proposalyRequest<T = IDataObject>(
 		};
 
 		if (error instanceof NodeOperationError) {
-			attachProposalyMetadata(error, metadata);
-			throw error;
+			const wrapped = new NodeOperationError(context.getNode(), error);
+			attachProposalyMetadata(wrapped, metadata);
+			throw wrapped;
 		}
 
 		const requestLabel = getRequestLabel(options);

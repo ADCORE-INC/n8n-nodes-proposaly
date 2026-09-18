@@ -2,7 +2,7 @@ import { INodeExecutionData, IExecuteFunctions } from 'n8n-workflow';
 import { Lead, PaginatedApiResponse } from '../../types';
 import { proposalyRequest } from '../../transport';
 import { Fields } from '../../constants';
-import { leadItemWithNotes } from '../../notes';
+import { includeNotesForItem, includeNotesQuery, leadItemWithNotes } from '../../notes';
 
 export async function findLeadByIdOperation(
 	context: IExecuteFunctions,
@@ -16,6 +16,7 @@ export async function findLeadByIdOperation(
 		path: '/leads',
 		qs: {
 			lead_id: leadId,
+			...includeNotesQuery(includeNotesForItem(context, itemIndex)),
 		},
 	});
 

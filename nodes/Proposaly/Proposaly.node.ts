@@ -89,7 +89,9 @@ async function executeItems(
 			if (context.continueOnFail()) {
 				returnData.push({ json: { error: (error as Error).message }, pairedItem: { item: i } });
 			} else {
-				throw error;
+				throw new NodeOperationError(context.getNode(), error as Error, {
+					itemIndex: i,
+				});
 			}
 		}
 	}
@@ -100,7 +102,7 @@ export class Proposaly implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Proposaly',
 		name: 'proposaly',
-		icon: 'file:proposaly.svg',
+		icon: { light: 'file:proposaly.svg', dark: 'file:proposaly-dark.svg' },
 		group: ['transform'],
 		version: 1,
 		usableAsTool: true,
@@ -118,11 +120,11 @@ export class Proposaly implements INodeType {
 			},
 		],
 		properties: [
-			// eslint-disable-next-line n8n-nodes-base/node-param-default-missing
 			{
 				displayName: 'Resource',
 				name: Fields.Resource,
 				type: 'options',
+				noDataExpression: true,
 				options: [
 					{
 						name: 'Card',
@@ -149,8 +151,7 @@ export class Proposaly implements INodeType {
 						value: Resources.Workspace,
 					},
 				],
-				default: Resources.Lead,
-				noDataExpression: true,
+				default: 'lead',
 				required: true,
 			},
 			...leadOperations,

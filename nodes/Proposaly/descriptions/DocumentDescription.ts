@@ -2,11 +2,11 @@ import type { INodeProperties } from 'n8n-workflow';
 import { Fields, Resources, DocumentOperations } from '../constants';
 
 export const documentOperations: INodeProperties[] = [
-	// eslint-disable-next-line n8n-nodes-base/node-param-default-missing
 	{
 		displayName: 'Operation',
 		name: Fields.Operation,
 		type: 'options',
+		noDataExpression: true,
 		displayOptions: {
 			show: {
 				resource: [Resources.Document],
@@ -86,8 +86,7 @@ export const documentOperations: INodeProperties[] = [
 				action: 'Update a document in a workspace',
 			},
 		],
-		default: DocumentOperations.Create,
-		noDataExpression: true,
+		default: 'createDocument',
 	},
 ];
 
@@ -264,12 +263,12 @@ export const documentFields: INodeProperties[] = [
 				value: '24h',
 			},
 			{
-				name: '7 Days',
-				value: '7d',
-			},
-			{
 				name: '30 Days',
 				value: '30d',
+			},
+			{
+				name: '7 Days',
+				value: '7d',
 			},
 		],
 		default: '7d',
@@ -328,39 +327,38 @@ export const documentFields: INodeProperties[] = [
 		name: Fields.NewStage,
 		required: true,
 		type: 'options',
-		// eslint-disable-next-line
 		options: [
-			{
-				name: 'Lead',
-				value: 'Lead',
-			},
-			{
-				name: 'Draft',
-				value: 'Draft',
-			},
-			{
-				name: 'Prospect',
-				value: 'Prospect',
-			},
-			{
-				name: 'Partially Approved',
-				value: 'PartiallyApproved',
-			},
 			{
 				name: 'Approved',
 				value: 'Approved',
 			},
 			{
-				name: 'In Progress',
-				value: 'InProgress',
+				name: 'Archived',
+				value: 'Archived',
 			},
 			{
 				name: 'Completed',
 				value: 'Completed',
 			},
 			{
-				name: 'Archived',
-				value: 'Archived',
+				name: 'Draft',
+				value: 'Draft',
+			},
+			{
+				name: 'In Progress',
+				value: 'InProgress',
+			},
+			{
+				name: 'Lead',
+				value: 'Lead',
+			},
+			{
+				name: 'Partially Approved',
+				value: 'PartiallyApproved',
+			},
+			{
+				name: 'Prospect',
+				value: 'Prospect',
 			},
 		],
 		default: 'Draft',
@@ -417,43 +415,42 @@ export const documentFields: INodeProperties[] = [
 		displayName: 'New Stage',
 		name: Fields.NewStageOptional,
 		type: 'options',
-		// eslint-disable-next-line
 		options: [
-			{
-				name: 'No Change',
-				value: '',
-			},
-			{
-				name: 'Lead',
-				value: 'Lead',
-			},
-			{
-				name: 'Draft',
-				value: 'Draft',
-			},
-			{
-				name: 'Prospect',
-				value: 'Prospect',
-			},
-			{
-				name: 'Partially Approved',
-				value: 'PartiallyApproved',
-			},
 			{
 				name: 'Approved',
 				value: 'Approved',
 			},
 			{
-				name: 'In Progress',
-				value: 'InProgress',
+				name: 'Archived',
+				value: 'Archived',
 			},
 			{
 				name: 'Completed',
 				value: 'Completed',
 			},
 			{
-				name: 'Archived',
-				value: 'Archived',
+				name: 'Draft',
+				value: 'Draft',
+			},
+			{
+				name: 'In Progress',
+				value: 'InProgress',
+			},
+			{
+				name: 'Lead',
+				value: 'Lead',
+			},
+			{
+				name: 'No Change',
+				value: '',
+			},
+			{
+				name: 'Partially Approved',
+				value: 'PartiallyApproved',
+			},
+			{
+				name: 'Prospect',
+				value: 'Prospect',
 			},
 		],
 		default: '',
@@ -542,6 +539,6 @@ export const documentFields: INodeProperties[] = [
 			},
 		},
 		description:
-			'Whether to fetch nested notes. Turn off to save API credits; each record can use extra API calls.',
+			'Whether to include nested notes on each record in the same API call. Turn off for smaller pages.',
 	},
 ];

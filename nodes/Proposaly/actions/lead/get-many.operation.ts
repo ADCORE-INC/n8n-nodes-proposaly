@@ -2,7 +2,7 @@ import { IDataObject, IExecuteFunctions, INodeExecutionData } from 'n8n-workflow
 import { compact } from '../../utils';
 import { Fields } from '../../constants';
 import { flattenLead, toItems } from '../../shape';
-import { attachNotesToRecords, includeNotesForItem } from '../../notes';
+import { attachNotesToRecords, includeNotesForItem, includeNotesQuery } from '../../notes';
 import { proposalyRequestLimited } from '../../transport';
 import { Lead } from '../../types';
 
@@ -23,6 +23,7 @@ export async function getManyLeadsOperation(
 		compact({
 			workspace_id: workspaceId,
 			lead_status: status || undefined,
+			...includeNotesQuery(includeNotesForItem(context, itemIndex)),
 		}) as IDataObject,
 		limit,
 	);

@@ -1,8 +1,8 @@
 import { IDataObject, INodeExecutionData, IPollFunctions } from 'n8n-workflow';
 import { Document, PaginatedApiResponse, PollData } from '../types';
-import { isRetryableProposalyError, proposalyRequest } from '../transport';
+import { isRetryableProposalyError, proposalyRequest, rethrowAsNodeError } from '../transport';
 import { diffPollRecords, resolvePollLimit } from '../shape';
-import { attachNotesToRecords, includeNotesForPoll } from '../notes';
+import { attachNotesToRecords, includeNotesForPoll, includeNotesQuery } from '../notes';
 
 function resetDocumentPollDataWorkspace(pollData: PollData) {
 	pollData.lastNewDocumentId = undefined;
@@ -31,7 +31,7 @@ export async function pollDocumentTrigger(
 		if (isRetryableProposalyError(error)) {
 			return null;
 		}
-		throw error;
+		rethrowAsNodeError(context, error);
 	}
 }
 
@@ -56,6 +56,7 @@ async function pollNewDocument(context: IPollFunctions): Promise<INodeExecutionD
 			qs: {
 				workspace_id: workspaceId,
 				page,
+				...includeNotesQuery(includeNotesForPoll(context)),
 			},
 		});
 
@@ -134,6 +135,7 @@ async function pollDocumentMovedToNewStage(
 				stage_id: stageId,
 				page,
 				sort_by: 'StatusChangedDate',
+				...includeNotesQuery(includeNotesForPoll(context)),
 			},
 		});
 

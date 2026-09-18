@@ -1,6 +1,6 @@
 import { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { Fields } from '../../constants';
-import { cardsWithNotes, includeNotesForItem } from '../../notes';
+import { cardsWithNotes, includeNotesForItem, includeNotesQuery } from '../../notes';
 import { toItems } from '../../shape';
 import { proposalyRequestLimited } from '../../transport';
 import { Document } from '../../types';
@@ -18,7 +18,10 @@ export async function getManyCardsOperation(
 	const documents = await proposalyRequestLimited<Document>(
 		context,
 		'/documents',
-		{ workspace_id: workspaceId },
+		{
+			workspace_id: workspaceId,
+			...includeNotesQuery(includeNotesForItem(context, itemIndex)),
+		},
 		limit,
 	);
 

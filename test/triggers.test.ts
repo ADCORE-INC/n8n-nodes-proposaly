@@ -7,6 +7,7 @@ import { pollRecipientTrigger } from '../nodes/Proposaly/triggers/recipient.trig
 import { pollWorkspaceTrigger } from '../nodes/Proposaly/triggers/workspace.triggers';
 import { pollCardTrigger } from '../nodes/Proposaly/triggers/card.triggers';
 import { pollNoteTrigger } from '../nodes/Proposaly/triggers/note.triggers';
+import { NodeApiError } from 'n8n-workflow';
 import { createNodeContext } from './helpers/context';
 
 const lead = (id: string, dateCreated: number) => ({
@@ -159,14 +160,20 @@ describe('Proposaly Trigger', () => {
 			mode: 'trigger',
 			pollData,
 			responses: [
-				{ entities: [lead('l2', 200), lead('l1', 100)], pagination: {} },
-				{ entities: [{ id: 'n1', title: 'Follow-up' }], pagination: {} },
+				{
+					entities: [
+						{ ...lead('l2', 200), notes: [{ id: 'n1', title: 'Follow-up' }], notes_total: 1 },
+						lead('l1', 100),
+					],
+					pagination: {},
+				},
 			],
 		});
 
 		const result = await pollLeadTrigger(context, 'newLead');
 		assert.equal(result?.[0].json.lead_id, 'l2');
 		assert.deepEqual(result?.[0].json.notes, [{ id: 'n1', title: 'Follow-up' }]);
+		assert.equal(result?.[0].json.notes_total, 1);
 	});
 
 	it('seeds new notes and later emits notes newer than the cursor', async () => {
@@ -195,7 +202,7 @@ describe('Proposaly Trigger', () => {
 
 	it('filters archived cards on new card and flattens lead metadata', async () => {
 		const pollData: Record<string, unknown> = { lastNewCardId: 'doc-1', currentWorkspaceId: 'ws-card' };
-		const { context } = createNodeContext({
+		const { context, captured } = createNodeContext({
 			params: { workspaceId: 'ws-card', limit: 50 },
 			mode: 'trigger',
 			pollData,
@@ -207,17 +214,19 @@ describe('Proposaly Trigger', () => {
 							document_title: 'Won',
 							stage_id: 'Lead',
 							lead_metadata: { client_name: 'Acme', recipients: [{ email: 'ada@example.com' }] },
+							notes: [{ id: 'n1', title: 'Kickoff' }],
+							notes_total: 1,
 						},
 						{ document_id: 'doc-archived', stage_id: 'Archived' },
 						{ document_id: 'doc-1', stage_id: 'Lead' },
 					],
 					pagination: {},
 				},
-				{ entities: [{ id: 'n1', title: 'Kickoff' }], pagination: {} },
 			],
 		});
 
 		const result = await pollCardTrigger(context, 'newCard');
+		assert.equal(captured[0].qs?.include_notes, true);
 		assert.equal(result?.length, 1);
 		assert.equal(result?.[0].json.document_id, 'doc-2');
 		assert.equal(result?.[0].json.client_name, 'Acme');
@@ -240,6 +249,46 @@ describe('Proposaly Trigger', () => {
 		const result = await pollLeadTrigger(context, 'newLead');
 		assert.equal(result?.[0].json.lead_id, 'l2');
 		assert.equal('notes' in (result?.[0].json ?? {}), false);
+		assert.equal(captured[0].qs?.include_notes, undefined);
 		assert.equal(captured.filter((request) => (request.url ?? '').includes('/notes')).length, 0);
+	});
+
+	it('returns null when a poll hits a retryable Proposaly API error', async () => {
+		const { context } = createNodeContext({
+			params: { workspaceId: 'ws-1', limit: 50 },
+			mode: 'trigger',
+			pollData: {},
+		});
+		(context as { helpers: { httpRequestWithAuthentication: () => Promise<never> } }).helpers
+			.httpRequestWithAuthentication = async () => {
+			const error = new Error('unavailable') as Error & { statusCode: number };
+			error.statusCode = 500;
+			throw error;
+		};
+
+		assert.equal(await pollLeadTrigger(context, 'newLead'), null);
+	});
+
+	it('rethrows non-retryable poll errors as NodeApiError', async () => {
+		const { context } = createNodeContext({
+			params: { workspaceId: 'ws-1', limit: 50 },
+			mode: 'trigger',
+			pollData: {},
+		});
+		(context as { helpers: { httpRequestWithAuthentication: () => Promise<never> } }).helpers
+			.httpRequestWithAuthentication = async () => {
+			const error = new Error('bad request') as Error & { statusCode: number };
+			error.statusCode = 400;
+			throw error;
+		};
+
+		await assert.rejects(
+			() => pollLeadTrigger(context, 'newLead'),
+			(error: unknown) => {
+				assert.ok(error instanceof NodeApiError);
+				assert.match(error.message, /HTTP 400/);
+				return true;
+			},
+		);
 	});
 });

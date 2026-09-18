@@ -2,11 +2,11 @@ import type { INodeProperties } from 'n8n-workflow';
 import { Fields, Resources, WorkspaceOperations } from '../constants';
 
 export const workspaceOperations: INodeProperties[] = [
-	// eslint-disable-next-line n8n-nodes-base/node-param-default-missing
 	{
 		displayName: 'Operation',
 		name: Fields.Operation,
 		type: 'options',
+		noDataExpression: true,
 		displayOptions: {
 			show: {
 				resource: [Resources.Workspace],
@@ -38,8 +38,7 @@ export const workspaceOperations: INodeProperties[] = [
 				action: 'Get workspace stages',
 			},
 		],
-		default: WorkspaceOperations.Add,
-		noDataExpression: true,
+		default: 'addWorkspace',
 	},
 ];
 
@@ -78,10 +77,10 @@ export const workspaceFields: INodeProperties[] = [
 		name: Fields.WorkspaceType,
 		type: 'options',
 		options: [
-			{ name: 'Proposal', value: 'proposal' },
 			{ name: 'Agreement', value: 'agreement' },
-			{ name: 'Presentation', value: 'presentation' },
 			{ name: 'Payment', value: 'payment' },
+			{ name: 'Presentation', value: 'presentation' },
+			{ name: 'Proposal', value: 'proposal' },
 		],
 		required: true,
 		displayOptions: {

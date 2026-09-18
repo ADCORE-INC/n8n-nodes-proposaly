@@ -2,11 +2,11 @@ import type { INodeProperties } from 'n8n-workflow';
 import { Fields, Resources, LeadOperations, AdditionalFieldKeys } from '../constants';
 
 export const leadOperations: INodeProperties[] = [
-	// eslint-disable-next-line n8n-nodes-base/node-param-default-missing
 	{
 		displayName: 'Operation',
 		name: Fields.Operation,
 		type: 'options',
+		noDataExpression: true,
 		displayOptions: {
 			show: {
 				resource: [Resources.Lead],
@@ -56,8 +56,7 @@ export const leadOperations: INodeProperties[] = [
 				action: 'Update a lead in a workspace',
 			},
 		],
-		default: LeadOperations.Create,
-		noDataExpression: true,
+		default: 'createLead',
 	},
 ];
 
@@ -99,12 +98,12 @@ export const leadFields: INodeProperties[] = [
 		type: 'options',
 		options: [
 			{
-				name: 'Individual',
-				value: 'individual',
-			},
-			{
 				name: 'Business',
 				value: 'business',
+			},
+			{
+				name: 'Individual',
+				value: 'individual',
 			},
 		],
 		displayOptions: {
@@ -122,16 +121,16 @@ export const leadFields: INodeProperties[] = [
 		type: 'options',
 		options: [
 			{
-				name: 'No Change',
-				value: '',
+				name: 'Business',
+				value: 'business',
 			},
 			{
 				name: 'Individual',
 				value: 'individual',
 			},
 			{
-				name: 'Business',
-				value: 'business',
+				name: 'No Change',
+				value: '',
 			},
 		],
 		displayOptions: {
@@ -223,11 +222,58 @@ export const leadFields: INodeProperties[] = [
 		},
 		type: 'options',
 		required: true,
-		// eslint-disable-next-line
 		options: [
+			{
+				name: 'Affiliate Program',
+				value: 'Affiliate program',
+			},
+			{
+				name: 'Blog Post/Content Marketing',
+				value: 'Blog post/Content marketing',
+			},
+			{
+				name: 'Cold Call',
+				value: 'Cold call',
+			},
+			{
+				name: 'Cold Email',
+				value: 'Cold email',
+			},
+			{
+				name: 'Conference',
+				value: 'Conference',
+			},
+			{
+				name: 'Customer Referral',
+				value: 'Customer referral',
+			},
+			{
+				name: 'Email Campaigns',
+				value: 'Email campaigns',
+			},
+			{
+				name: 'Existing Client Upsell',
+				value: 'Existing client upsell',
+			},
 			{
 				name: 'Google Ads',
 				value: 'Google Ads',
+			},
+			{
+				name: 'Internal Employee Referral',
+				value: 'Internal employee referral',
+			},
+			{
+				name: 'LinkedIn',
+				value: 'LinkedIn',
+			},
+			{
+				name: 'LinkedIn Ads',
+				value: 'LinkedIn Ads',
+			},
+			{
+				name: 'Live Chat/Chatbot',
+				value: 'Live chat/Chatbot',
 			},
 			{
 				name: 'Meta Ads',
@@ -238,96 +284,48 @@ export const leadFields: INodeProperties[] = [
 				value: 'Microsoft Ads',
 			},
 			{
-				name: 'LinkedIn Ads',
-				value: 'LinkedIn Ads',
+				name: 'Networking Event',
+				value: 'Networking event',
 			},
 			{
-				name: 'Email Campaigns',
-				value: 'Email campaigns',
-			},
-			{
-				name: 'SEO/Organic Search',
-				value: 'SEO/Organic search',
-			},
-			{
-				name: 'Referral',
-				value: 'Referral',
+				name: 'Other',
+				value: 'Other',
 			},
 			{
 				name: 'Partner',
 				value: 'Partner',
 			},
 			{
-				name: 'Affiliate Program',
-				value: 'Affiliate program',
+				name: 'Referral',
+				value: 'Referral',
 			},
 			{
 				name: 'Reseller',
 				value: 'Reseller',
 			},
 			{
-				name: 'Webinar',
-				value: 'Webinar',
-			},
-			{
-				name: 'Trade Show',
-				value: 'Trade show',
-			},
-			{
-				name: 'Conference',
-				value: 'Conference',
-			},
-			{
-				name: 'Networking Event',
-				value: 'Networking event',
-			},
-			{
-				name: 'Website Form Submission',
-				value: 'Website form submission',
-			},
-			{
-				name: 'Live Chat/Chatbot',
-				value: 'Live chat/Chatbot',
+				name: 'SEO/Organic Search',
+				value: 'SEO/Organic search',
 			},
 			{
 				name: 'Social Media',
 				value: 'Social media',
 			},
 			{
-				name: 'Blog Post/Content Marketing',
-				value: 'Blog post/Content marketing',
-			},
-			{
-				name: 'Cold Email',
-				value: 'Cold email',
-			},
-			{
-				name: 'Cold Call',
-				value: 'Cold call',
-			},
-			{
-				name: 'LinkedIn',
-				value: 'LinkedIn',
-			},
-			{
-				name: 'Customer Referral',
-				value: 'Customer referral',
-			},
-			{
-				name: 'Existing Client Upsell',
-				value: 'Existing client upsell',
-			},
-			{
-				name: 'Internal Employee Referral',
-				value: 'Internal employee referral',
+				name: 'Trade Show',
+				value: 'Trade show',
 			},
 			{
 				name: 'Walk-In',
 				value: 'Walk-in',
 			},
 			{
-				name: 'Other',
-				value: 'Other',
+				name: 'Webinar',
+				value: 'Webinar',
+			},
+			{
+				name: 'Website Form Submission',
+				value: 'Website form submission',
 			},
 		],
 		default: 'Google Ads',
@@ -344,15 +342,58 @@ export const leadFields: INodeProperties[] = [
 			},
 		},
 		type: 'options',
-		// eslint-disable-next-line
 		options: [
 			{
-				name: 'No Change',
-				value: '',
+				name: 'Affiliate Program',
+				value: 'Affiliate program',
+			},
+			{
+				name: 'Blog Post/Content Marketing',
+				value: 'Blog post/Content marketing',
+			},
+			{
+				name: 'Cold Call',
+				value: 'Cold call',
+			},
+			{
+				name: 'Cold Email',
+				value: 'Cold email',
+			},
+			{
+				name: 'Conference',
+				value: 'Conference',
+			},
+			{
+				name: 'Customer Referral',
+				value: 'Customer referral',
+			},
+			{
+				name: 'Email Campaigns',
+				value: 'Email campaigns',
+			},
+			{
+				name: 'Existing Client Upsell',
+				value: 'Existing client upsell',
 			},
 			{
 				name: 'Google Ads',
 				value: 'Google Ads',
+			},
+			{
+				name: 'Internal Employee Referral',
+				value: 'Internal employee referral',
+			},
+			{
+				name: 'LinkedIn',
+				value: 'LinkedIn',
+			},
+			{
+				name: 'LinkedIn Ads',
+				value: 'LinkedIn Ads',
+			},
+			{
+				name: 'Live Chat/Chatbot',
+				value: 'Live chat/Chatbot',
 			},
 			{
 				name: 'Meta Ads',
@@ -363,96 +404,52 @@ export const leadFields: INodeProperties[] = [
 				value: 'Microsoft Ads',
 			},
 			{
-				name: 'LinkedIn Ads',
-				value: 'LinkedIn Ads',
+				name: 'Networking Event',
+				value: 'Networking event',
 			},
 			{
-				name: 'Email Campaigns',
-				value: 'Email campaigns',
+				name: 'No Change',
+				value: '',
 			},
 			{
-				name: 'SEO/Organic Search',
-				value: 'SEO/Organic search',
-			},
-			{
-				name: 'Referral',
-				value: 'Referral',
+				name: 'Other',
+				value: 'Other',
 			},
 			{
 				name: 'Partner',
 				value: 'Partner',
 			},
 			{
-				name: 'Affiliate Program',
-				value: 'Affiliate program',
+				name: 'Referral',
+				value: 'Referral',
 			},
 			{
 				name: 'Reseller',
 				value: 'Reseller',
 			},
 			{
-				name: 'Webinar',
-				value: 'Webinar',
-			},
-			{
-				name: 'Trade Show',
-				value: 'Trade show',
-			},
-			{
-				name: 'Conference',
-				value: 'Conference',
-			},
-			{
-				name: 'Networking Event',
-				value: 'Networking event',
-			},
-			{
-				name: 'Website Form Submission',
-				value: 'Website form submission',
-			},
-			{
-				name: 'Live Chat/Chatbot',
-				value: 'Live chat/Chatbot',
+				name: 'SEO/Organic Search',
+				value: 'SEO/Organic search',
 			},
 			{
 				name: 'Social Media',
 				value: 'Social media',
 			},
 			{
-				name: 'Blog Post/Content Marketing',
-				value: 'Blog post/Content marketing',
-			},
-			{
-				name: 'Cold Email',
-				value: 'Cold email',
-			},
-			{
-				name: 'Cold Call',
-				value: 'Cold call',
-			},
-			{
-				name: 'LinkedIn',
-				value: 'LinkedIn',
-			},
-			{
-				name: 'Customer Referral',
-				value: 'Customer referral',
-			},
-			{
-				name: 'Existing Client Upsell',
-				value: 'Existing client upsell',
-			},
-			{
-				name: 'Internal Employee Referral',
-				value: 'Internal employee referral',
+				name: 'Trade Show',
+				value: 'Trade show',
 			},
 			{
 				name: 'Walk-In',
 				value: 'Walk-in',
 			},
 			{
-				name: 'Other',
-				value: 'Other',
+				name: 'Webinar',
+				value: 'Webinar',
+			},
+			{
+				name: 'Website Form Submission',
+				value: 'Website form submission',
 			},
 		],
 		default: '',
@@ -614,12 +611,12 @@ export const leadFields: INodeProperties[] = [
 		type: 'options',
 		options: [
 			{
-				name: 'All',
-				value: '',
-			},
-			{
 				name: 'Active',
 				value: 'Active',
+			},
+			{
+				name: 'All',
+				value: '',
 			},
 			{
 				name: 'Archived',
@@ -688,6 +685,6 @@ export const leadFields: INodeProperties[] = [
 			},
 		},
 		description:
-			'Whether to fetch nested notes. Turn off to save API credits; each record can use extra API calls.',
+			'Whether to include nested notes on each record in the same API call. Turn off for smaller pages.',
 	},
 ];

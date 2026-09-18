@@ -14,7 +14,7 @@ export class ProposalyApi implements ICredentialType {
 
 	documentationUrl = 'https://docs.proposaly.com/';
 
-	icon: Icon = 'file:proposaly.svg';
+	icon: Icon = { light: 'file:proposaly.svg', dark: 'file:proposaly-dark.svg' };
 
 	properties: INodeProperties[] = [
 		{

@@ -11,11 +11,11 @@ const noteParentOperations = [
 const noteIdOperations = [NoteOperations.Delete, NoteOperations.FindById, NoteOperations.Update];
 
 export const noteOperations: INodeProperties[] = [
-	// eslint-disable-next-line n8n-nodes-base/node-param-default-missing
 	{
 		displayName: 'Operation',
 		name: Fields.Operation,
 		type: 'options',
+		noDataExpression: true,
 		displayOptions: {
 			show: {
 				resource: [Resources.Note],
@@ -53,8 +53,7 @@ export const noteOperations: INodeProperties[] = [
 				action: 'Update a note',
 			},
 		],
-		default: NoteOperations.Create,
-		noDataExpression: true,
+		default: 'createNote',
 	},
 ];
 
@@ -77,9 +76,7 @@ export const noteFields: INodeProperties[] = [
 			'Optional. Used to list parents below. Card workspaces load documents only; other workspaces load documents and leads. Skip this if you map an ID. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 	},
 	{
-		// API values are IDs; the list only shows names as labels.
-		// eslint-disable-next-line n8n-nodes-base/node-param-display-name-wrong-for-dynamic-options
-		displayName: 'Document, Card, or Lead ID',
+		displayName: 'Parent Name or ID',
 		name: Fields.ParentId,
 		type: 'options',
 		typeOptions: {

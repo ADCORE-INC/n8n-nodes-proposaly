@@ -2,6 +2,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import type { INodeProperties } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
 import {
 	CardOperations,
 	DocumentOperations,
@@ -441,6 +442,53 @@ describe('Proposaly.execute routing', () => {
 		const result = (await node.execute.call(context)) as Array<Array<{ json: { error: string } }>>;
 		assert.equal(result[0][0].json.error, 'Proposaly API request failed (DELETE /leads/lead-1). Check your connection and URL.');
 	});
+
+	it('wraps API errors in NodeOperationError when continue on fail is off', async () => {
+		const node = new Proposaly();
+		const { context } = createNodeContext({
+			params: {
+				[Fields.Resource]: Resources.Lead,
+				[Fields.Operation]: LeadOperations.Delete,
+				[Fields.LeadId]: 'lead-1',
+			},
+		});
+		(context as { helpers: { httpRequestWithAuthentication: () => Promise<never> } }).helpers
+			.httpRequestWithAuthentication = async () => {
+			throw new Error('API down');
+		};
+
+		await assert.rejects(
+			() => node.execute.call(context),
+			(error: unknown) => {
+				assert.ok(error instanceof NodeOperationError);
+				assert.match(error.message, /Proposaly API request failed \(DELETE \/leads\/lead-1\)/);
+				return true;
+			},
+		);
+	});
+
+	it('includes notes on GET leads and documents without a second /notes call', async () => {
+		const node = new Proposaly();
+		const note = { id: 'n1', title: 'Follow-up', body: 'Called', source: 'note' };
+		const executed = await runExecute(
+			node.execute,
+			{
+				[Fields.Resource]: Resources.Lead,
+				[Fields.Operation]: LeadOperations.FindById,
+				[Fields.LeadIdString]: 'lead-1',
+			},
+			{
+				entities: [{ ...leadResponse, notes: [note], notes_total: 1 }],
+				pagination: {},
+			},
+		);
+
+		assert.equal(executed.captured.length, 1);
+		assert.equal(executed.request.qs?.include_notes, true);
+		const items = executed.result as Array<Array<{ json: { notes?: Array<{ id: string }>; notes_total?: number } }>>;
+		assert.equal(items[0][0].json.notes?.[0].id, 'n1');
+		assert.equal(items[0][0].json.notes_total, 1);
+	});
 });
 
 describe('ProposalyTrigger.poll routing', () => {
@@ -571,7 +619,21 @@ describe('loadOptions', () => {
 		);
 
 		const parent = node.description.properties.find((property) => property.name === Fields.ParentId);
-		assert.equal(parent?.displayName, 'Document, Card, or Lead ID');
+		assert.equal(parent?.displayName, 'Parent Name or ID');
+
+		const triggerParent = trigger.description.properties.find(
+			(property) => property.name === 'parentId',
+		);
+		assert.equal(triggerParent?.displayName, 'Parent Name or ID');
+		assert.equal(trigger.description.usableAsTool, undefined);
+		assert.deepEqual(node.description.icon, {
+			light: 'file:proposaly.svg',
+			dark: 'file:proposaly-dark.svg',
+		});
+		assert.deepEqual(trigger.description.icon, {
+			light: 'file:proposaly.svg',
+			dark: 'file:proposaly-dark.svg',
+		});
 
 		const noteId = node.description.properties.find((property) => property.name === Fields.NoteId);
 		assert.equal(noteId?.type, 'string');

@@ -1,6 +1,6 @@
 import type { IDataObject, INodeExecutionData, IPollFunctions } from 'n8n-workflow';
 import { Note, PollData } from '../types';
-import { isRetryableProposalyError } from '../transport';
+import { isRetryableProposalyError, rethrowAsNodeError } from '../transport';
 import { fetchNotesList } from '../notes';
 import { diffPollRecords, resolvePollLimit } from '../shape';
 
@@ -43,6 +43,6 @@ export async function pollNoteTrigger(
 		if (isRetryableProposalyError(error)) {
 			return null;
 		}
-		throw error;
+		rethrowAsNodeError(context, error);
 	}
 }

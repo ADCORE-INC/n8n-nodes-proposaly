@@ -2,11 +2,11 @@ import type { INodeProperties } from 'n8n-workflow';
 import { CardOperations, Fields, Resources } from '../constants';
 
 export const cardOperations: INodeProperties[] = [
-	// eslint-disable-next-line n8n-nodes-base/node-param-default-missing
 	{
 		displayName: 'Operation',
 		name: Fields.Operation,
 		type: 'options',
+		noDataExpression: true,
 		displayOptions: {
 			show: {
 				resource: [Resources.Card],
@@ -26,8 +26,7 @@ export const cardOperations: INodeProperties[] = [
 				action: 'Get many cards',
 			},
 		],
-		default: CardOperations.FindById,
-		noDataExpression: true,
+		default: 'findCardById',
 	},
 ];
 
@@ -107,6 +106,6 @@ export const cardFields: INodeProperties[] = [
 			},
 		},
 		description:
-			'Whether to fetch nested notes. Turn off to save API credits; each record can use extra API calls.',
+			'Whether to include nested notes on each record in the same API call. Turn off for smaller pages.',
 	},
 ];

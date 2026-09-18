@@ -1,6 +1,6 @@
 import { IDataObject, IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { Fields } from '../../constants';
-import { cardItemWithNotes } from '../../notes';
+import { cardItemWithNotes, includeNotesForItem, includeNotesQuery } from '../../notes';
 import { proposalyRequest } from '../../transport';
 import { Document, PaginatedApiResponse } from '../../types';
 
@@ -16,6 +16,7 @@ export async function findCardOperation(
 		path: '/documents',
 		qs: {
 			document_id: documentId,
+			...includeNotesQuery(includeNotesForItem(context, itemIndex)),
 		},
 	});
 
