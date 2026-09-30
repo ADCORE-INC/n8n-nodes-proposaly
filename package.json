@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-proposaly",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"description": "Unify presentations, proposals, agreements, and payments in Proposaly",
 	"license": "MIT",
 	"homepage": "https://github.com/ADCORE-INC/n8n.proposaly.io",

@@ -192,6 +192,12 @@ return {
 
 See [CHANGELOG.md](CHANGELOG.md) for a detailed version history.
 
+### 0.2.2
+
+- Community-node lint fixes from the 0.2.1 review, including light and dark icons
+- Codex node id is `n8n-nodes-proposaly.Proposaly`
+- Nested notes load with `include_notes`
+
 ### 0.2.1
 
 - Same 0.2.0 node features; npm publish now uses Trusted Publishing (OIDC) from GitHub Actions
